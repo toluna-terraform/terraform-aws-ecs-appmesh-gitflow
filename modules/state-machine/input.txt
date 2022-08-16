@@ -1,0 +1,11 @@
+{
+	"input": {
+	  "name": "Srinivas"
+	},
+	"output": {
+		"health_state": "healthy"
+	},
+	"results": {
+		"result1": "200 - ok"
+	}
+}
