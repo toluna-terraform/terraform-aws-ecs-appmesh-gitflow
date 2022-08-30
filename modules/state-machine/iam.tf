@@ -18,26 +18,44 @@ resource "aws_iam_role" "iam_for_lambda" {
 EOF
 }
 
-resource "aws_iam_role" "iam_for_sfn" {
-  name = "iam_for_sfn"
-  managed_policy_arns = [ "arn:aws:iam::aws:policy/service-role/AWSLambdaRole" ]
+# Attach inline policy to access SQS, CloudWatch, etc
+resource "aws_iam_role_policy" "InlinePolicyForSQSAccess" {
+  name = "InlinePolicyForSQSAccess"
+  role = aws_iam_role.iam_for_lambda.id
 
-  assume_role_policy = <<EOF
-{
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
         {
             "Sid": "",
             "Effect": "Allow",
-            "Principal": {
-              "Service": "states.amazonaws.com"
-            },
-           "Action": "sts:AssumeRole"
+            "Action": "lambda:InvokeFunction",
+            "Resource": "arn:aws:lambda:*:603106382807:function:*"
+        },
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+                "logs:PutLogEvents",
+                "logs:CreateLogStream",
+                "logs:CreateLogGroup"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+                "sqs:*"
+            ],
+            "Resource": "*"
         }
     ]
+})
 }
-EOF
-}
+
 
 # Attach App mesh access
 resource "aws_iam_policy_attachment" "attach-appmesh-policy" {
@@ -58,4 +76,26 @@ resource "aws_iam_policy_attachment" "attach-ssm-policy" {
   name       = "attach-ssm-policy"
   roles      = [ aws_iam_role.iam_for_lambda.name ]
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+}
+
+# IAM role for Step function
+resource "aws_iam_role" "iam_for_sfn" {
+  name = "iam_for_sfn"
+  managed_policy_arns = [ "arn:aws:iam::aws:policy/service-role/AWSLambdaRole" ]
+
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "states.amazonaws.com"
+            },
+           "Action": "sts:AssumeRole"
+        }
+    ]
+}
+EOF
 }

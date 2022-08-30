@@ -7,7 +7,7 @@ data "archive_file" "deploy_updated_version_zip" {
 }
 
 resource "aws_lambda_function" "deploy_updated_version" {
-  runtime = "python3.8"
+  runtime = "python3.9"
 
   function_name = "deploy_updated_version"
   description = "Changes ECS service between blue and green "
@@ -24,22 +24,23 @@ resource "aws_lambda_function" "deploy_updated_version" {
   }
 }
 
-# ---- cleanup in case if tests fails
-data "archive_file" "rollback_zip" {
+# ---- cleanup in case if tests fails in new env
+# this part of the process to stay on old env
+data "archive_file" "cleanup_zip" {
     type        = "zip"
-    source_file  = "${path.module}/lambdas/rollback.py"
-    output_path = "${path.module}/lambdas/rollback.zip"
+    source_file  = "${path.module}/lambdas/cleanup.py"
+    output_path = "${path.module}/lambdas/cleanup.zip"
 }
 
-resource "aws_lambda_function" "rollback" {
-  runtime = "python3.8"
+resource "aws_lambda_function" "cleanup" {
+  runtime = "python3.9"
 
-  function_name = "rollback"
-  description = "Rollback services on applicatin nextColor service "
-  filename = "${path.module}/lambdas/rollback.zip"
+  function_name = "cleanup"
+  description = "cleanup services on applicatin nextColor service "
+  filename = "${path.module}/lambdas/cleanup.zip"
 
   role = "${aws_iam_role.iam_for_lambda.arn}"
-  handler = "rollback.lambda_handler"
+  handler = "cleanup.lambda_handler"
 
   environment {
     variables = {
@@ -58,7 +59,7 @@ data "archive_file" "run_integration_tests_zip" {
 }
 
 resource "aws_lambda_function" "run_integration_tests" {
-  runtime = "python3.8"
+  runtime = "python3.9"
 
   function_name = "run_integration_tests"
   description = "Run Integration tests on nextColor service of application to decide if traffic can be switched."
@@ -79,22 +80,22 @@ resource "aws_lambda_function" "run_integration_tests" {
 
 # ---- wait for merge interrupt from controller
 
-data "archive_file" "wait_for_merge_zip" {
-    type        = "zip"
-    source_file  = "${path.module}/lambdas/wait_for_merge.py"
-    output_path = "${path.module}/lambdas/wait_for_merge.zip"
-}
+# data "archive_file" "sendmsgtosqs_waitformerge_zip" {
+#     type        = "zip"
+#     source_file  = "${path.module}/lambdas/sendmsgtosqs_waitformerge.py"
+#     output_path = "${path.module}/lambdas/sendmsgtosqs_waitformerge.zip"
+# }
 
-resource "aws_lambda_function" "wait_for_merge" {
-  runtime = "python3.8"
+# resource "aws_lambda_function" "sendmsgtosqs_waitformerge" {
+#   runtime = "python3.9"
 
-  function_name = "wait_for_merge"
-  description = "Changes ECS service between blue and green "
-  filename = "${path.module}/lambdas/wait_for_merge.zip"
+#   function_name = "sendmsgtosqs_waitformerge"
+#   description = "Changes ECS service between blue and green "
+#   filename = "${path.module}/lambdas/sendmsgtosqs_waitformerge.zip"
 
-  role = "${aws_iam_role.iam_for_lambda.arn}"
-  handler = "wait_for_merge.lambda_handler"
-}
+#   role = "${aws_iam_role.iam_for_lambda.arn}"
+#   handler = "sendmsgtosqs_waitformerge.lambda_handler"
+# }
 
 # ---- shifting traffic
 data "archive_file" "shift_traffic_zip" {
@@ -104,7 +105,7 @@ data "archive_file" "shift_traffic_zip" {
 }
 
 resource "aws_lambda_function" "shift_traffic" {
-  runtime = "python3.8"
+  runtime = "python3.9"
 
   function_name = "shift_traffic"
   description = "Changes traffic between blue and green by switching route weight"

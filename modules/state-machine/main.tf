@@ -18,6 +18,9 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
       "InputPath": "$",
       "OutputPath": "$",
       "ResultPath": "$",
+      "Parameters" : {
+        "Url" : "https://${var.appmesh_name}.buffet-non-prod.toluna-internal.com/${var.env_name}/${var.app_name}"
+      },
       "Next": "validate_integ_test_results"
     },
     "validate_integ_test_results": {
@@ -26,24 +29,30 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
         {
           "Variable": "$.is_healthy",
           "StringEquals": "true",
-          "Next": "wait_for_merge"
+          "Next": "SendMsgToSQSWaitForMerge"
         },
         {  
-          "Variable": "$.is_healthhy",
+          "Variable": "$.is_healthy",
           "StringEquals": "false",
-          "Next": "rollback"
+          "Next": "CleanUp"
         }
-      ],
-      "Default": "wait_for_merge"
+      ]
     },
-    "rollback": {
+    "CleanUp": {
       "Type": "Task",
-      "Resource": "${aws_lambda_function.rollback.arn}",
+      "Resource": "${aws_lambda_function.cleanup.arn}",
       "End": true
     },
-    "wait_for_merge": {
+    "SendMsgToSQSWaitForMerge": {
       "Type": "Task",
-      "Resource": "${aws_lambda_function.wait_for_merge.arn}",
+      "Resource": "arn:aws:states:::sqs:sendMessage.waitForTaskToken",
+      "Parameters" : {
+        "QueueUrl" : "https://sqs.us-east-1.amazonaws.com/603106382807/QueueForSPDemo",
+        "MessageBody" : {
+          "MessageTitle": "Request invoked by SF. Waiting for callback from Lambda with task token.",
+          "TaskToken.$": "$$.Task.Token"
+        }
+      },
       "Next": "shift_traffic"
     },
     "shift_traffic": {

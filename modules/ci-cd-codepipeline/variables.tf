@@ -10,9 +10,9 @@ variable "build_codebuild_projects" {
     type = list(string)
 }
 
-# variable "post_codebuild_projects" {
-#     type = list(string)
-# }
+variable "post_codebuild_projects" {
+    type = list(string)
+}
 
 variable "pre_codebuild_projects" {
     type = list(string)

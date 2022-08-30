@@ -18,7 +18,7 @@ module "ci-cd-code-pipeline" {
   pre_codebuild_projects       = [module.pre.attributes.name]
   # code_deploy_applications     = [module.code-deploy.attributes.name]
   code_deploy_applications     = [ "${var.app_name}" ]
-  # post_codebuild_projects      = [module.post.attributes.name]
+  post_codebuild_projects      = [module.post.attributes.name]
 
   # state_machine_arn            = module.state-machine.arn
 
