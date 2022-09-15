@@ -1,25 +1,28 @@
-import urllib3
+import boto3
+import json
 import os
-# from postpy2.core import PostPython
+# import urllib3
 
 def lambda_handler(event, context):
 
-  # runner = PostPython('./chef.postman_collection2.json')
-  # runner = PostPython('https://chef-non-prod-postman-tests.s3.amazonaws.com/srinivas/chef.postman_collection2.json')
-  # response = runner.Folder1.get_version()
-  # print ( "response status_code = " , response.status_code )
-  # if (response.status_code == 200):
-  #   return { "is_healthy" : "true" }
-  # else: 
-  #   return { "is_healthy" : "false" }
+  appName = os.getenv('APP_NAME')
+  envName = os.getenv('ENV_NAME')
 
-  # url = os.getenv('URL')
-  url = "https://qa.buffet-non-prod.toluna-internal.com/srinivas/chef"
-  http = urllib3.PoolManager()
-  response = http.request('GET', url)    
-  print (response.status)
+
+  lambdaClient = boto3.client("lambda")
   
-  if (response.status == 200):
+  lambdaPayloadJson = {
+    "deploymentId": "0400baeb-ed0c-4eca-bc8e-435277e876cf",
+    "lb_name": "qa.buffet-non-prod.toluna-internal.com",
+    "environment": envName,
+    "report_group": "arn:aws:codebuild:us-east-1:603106382807:report-group/{app}-{env}-IntegrationTestReport".format(app = appName, env = envName)
+  }
+  
+  lambdaResp = lambdaClient.invoke(FunctionName="{app}-non-prod-integration-runner".format(app = appName), InvocationType='Event', Payload = json.dumps(lambdaPayloadJson) ) 
+  
+  responseStatusCode =  lambdaResp["StatusCode"]
+
+  if (responseStatusCode == 200  or responseStatusCode == 202 ):
     return { "is_healthy" : "true" }
   else: 
     return { "is_healthy" : "false" }

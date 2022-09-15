@@ -1,3 +1,10 @@
+locals {
+  app_name = var.app_name
+  env_name = var.env_name
+  env_type = var.env_type
+}
+
+# ---- create Step Function Orchestration flow
 resource "aws_sfn_state_machine" "sfn_state_machine" {
   name     = "${var.app_name}-${var.env_name}-state-machine"
   role_arn = aws_iam_role.iam_for_sfn.arn
@@ -29,7 +36,33 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
         {
           "Variable": "$.is_healthy",
           "StringEquals": "true",
-          "Next": "SendMsgToSQSWaitForMerge"
+          "Next": "run_stress_tests"
+        },
+        {  
+          "Variable": "$.is_healthy",
+          "StringEquals": "false",
+          "Next": "CleanUp"
+        }
+      ]
+    },
+    "run_stress_tests": {
+      "Type": "Task",
+      "Resource": "${aws_lambda_function.run_stress_tests.arn}",
+      "InputPath": "$",
+      "OutputPath": "$",
+      "ResultPath": "$",
+      "Parameters" : {
+        "Url" : "https://${var.appmesh_name}.buffet-non-prod.toluna-internal.com/${var.env_name}/${var.app_name}"
+      },
+      "Next": "validate_stress_test_results"
+    },
+    "validate_stress_test_results": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.is_healthy",
+          "StringEquals": "true",
+          "Next": "SendMsgToSQS_WaitForMerge"
         },
         {  
           "Variable": "$.is_healthy",
@@ -43,13 +76,13 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
       "Resource": "${aws_lambda_function.cleanup.arn}",
       "End": true
     },
-    "SendMsgToSQSWaitForMerge": {
+    "SendMsgToSQS_WaitForMerge": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sqs:sendMessage.waitForTaskToken",
       "Parameters" : {
         "QueueUrl" : "https://sqs.us-east-1.amazonaws.com/603106382807/QueueForSPDemo",
         "MessageBody" : {
-          "MessageTitle": "Request invoked by SF. Waiting for callback from Lambda with task token.",
+          "MessageTitle": "Request invoked by SF. Waiting for callback from CodeBuild with task token.",
           "TaskToken.$": "$$.Task.Token"
         }
       },

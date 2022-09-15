@@ -17,3 +17,13 @@ variable "appmesh_owner" {
 variable "appmesh_name" {
     type = string
 }
+
+variable "run_integration_tests" {
+    type = bool
+    default = false
+}
+
+variable "run_stress_tests" {
+    type = bool
+    default = false
+}

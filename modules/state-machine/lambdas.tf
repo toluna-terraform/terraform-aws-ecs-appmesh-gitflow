@@ -1,3 +1,11 @@
+# --- lamda layer contains python modules of consul, etc
+resource "aws_lambda_layer_version" "ecs_appmesh_pipeline_layer" {
+  filename   = "${path.module}/lambdas/ecs_appmesh_pipeline_layer.zip"
+  layer_name = "ecs_appmesh_pipeline_layer"
+
+  compatible_runtimes = ["python3.9"]
+}
+
 # ---- deploying updated ECS service version in next color
 
 data "archive_file" "deploy_updated_version_zip" {
@@ -8,10 +16,11 @@ data "archive_file" "deploy_updated_version_zip" {
 
 resource "aws_lambda_function" "deploy_updated_version" {
   runtime = "python3.9"
+  function_name = "${var.app_name}-${var.env_name}-deploy_updated_version"
 
-  function_name = "deploy_updated_version"
   description = "Changes ECS service between blue and green "
   filename = "${path.module}/lambdas/deploy_updated_version.zip"
+  layers = [ aws_lambda_layer_version.ecs_appmesh_pipeline_layer.arn ]
 
   role = "${aws_iam_role.iam_for_lambda.arn}"
   handler = "deploy_updated_version.lambda_handler"
@@ -35,7 +44,7 @@ data "archive_file" "cleanup_zip" {
 resource "aws_lambda_function" "cleanup" {
   runtime = "python3.9"
 
-  function_name = "cleanup"
+  function_name = "${var.app_name}-${var.env_name}-cleanup"
   description = "cleanup services on applicatin nextColor service "
   filename = "${path.module}/lambdas/cleanup.zip"
 
@@ -61,7 +70,7 @@ data "archive_file" "run_integration_tests_zip" {
 resource "aws_lambda_function" "run_integration_tests" {
   runtime = "python3.9"
 
-  function_name = "run_integration_tests"
+  function_name = "${var.app_name}-${var.env_name}-run_integration_tests"
   description = "Run Integration tests on nextColor service of application to decide if traffic can be switched."
   filename = "${path.module}/lambdas/run_integration_tests.zip"
 
@@ -72,30 +81,43 @@ resource "aws_lambda_function" "run_integration_tests" {
     variables = {
       APP_NAME = var.app_name
       ENV_NAME = var.env_name
+      ENV_TYPE = var.env_type
+      RUN_INTEGRATION_TESTS = var.run_integration_tests
       URL = "https://qa.buffet-non-prod.toluna-internal.com/${var.app_name}/${var.env_name}"
     }
   }
 
 }
 
-# ---- wait for merge interrupt from controller
+# ---- run_stress_tests
 
-# data "archive_file" "sendmsgtosqs_waitformerge_zip" {
-#     type        = "zip"
-#     source_file  = "${path.module}/lambdas/sendmsgtosqs_waitformerge.py"
-#     output_path = "${path.module}/lambdas/sendmsgtosqs_waitformerge.zip"
-# }
+data "archive_file" "run_stress_tests_zip" {
+    type        = "zip"
+    source_file  = "${path.module}/lambdas/run_stress_tests.py"
+    output_path = "${path.module}/lambdas/run_stress_tests.zip"
+}
 
-# resource "aws_lambda_function" "sendmsgtosqs_waitformerge" {
-#   runtime = "python3.9"
+resource "aws_lambda_function" "run_stress_tests" {
+  runtime = "python3.9"
 
-#   function_name = "sendmsgtosqs_waitformerge"
-#   description = "Changes ECS service between blue and green "
-#   filename = "${path.module}/lambdas/sendmsgtosqs_waitformerge.zip"
+  function_name = "${var.app_name}-${var.env_name}-run_stress_tests"
+  description = "Run Stress tests on nextColor service of application to decide if traffic can be switched."
+  filename = "${path.module}/lambdas/run_stress_tests.zip"
 
-#   role = "${aws_iam_role.iam_for_lambda.arn}"
-#   handler = "sendmsgtosqs_waitformerge.lambda_handler"
-# }
+  role = "${aws_iam_role.iam_for_lambda.arn}"
+  handler = "run_stress_tests.lambda_handler"
+
+  environment {
+    variables = {
+      APP_NAME = var.app_name
+      ENV_NAME = var.env_name
+      ENV_TYPE = var.env_type
+      RUN_STRESS_TESTS = var.run_stress_tests
+      URL = "https://qa.buffet-non-prod.toluna-internal.com/${var.app_name}/${var.env_name}"
+    }
+  }
+
+}
 
 # ---- shifting traffic
 data "archive_file" "shift_traffic_zip" {
@@ -107,9 +129,10 @@ data "archive_file" "shift_traffic_zip" {
 resource "aws_lambda_function" "shift_traffic" {
   runtime = "python3.9"
 
-  function_name = "shift_traffic"
+  function_name = "${var.app_name}-${var.env_name}-shift_traffic"
   description = "Changes traffic between blue and green by switching route weight"
   filename = "${path.module}/lambdas/shift_traffic.zip"
+  layers = [ aws_lambda_layer_version.ecs_appmesh_pipeline_layer.arn ]
 
   role = "${aws_iam_role.iam_for_lambda.arn}"
   handler = "shift_traffic.lambda_handler"
