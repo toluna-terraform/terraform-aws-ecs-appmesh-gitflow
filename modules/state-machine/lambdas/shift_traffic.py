@@ -18,7 +18,7 @@ def lambda_handler(event, context):
 
   session = connection.session.create( behavior = "release", ttl=20 )
   
-  current_color_tuple = connection.kv.get( "infra/chef-srinivas/current_color")
+  current_color_tuple = connection.kv.get( "infra/{app}-{env}/current_color".format(app = appName, env = envName))
   current_color = current_color_tuple[1]["Value"].decode('utf-8')
 
   if current_color == "green":

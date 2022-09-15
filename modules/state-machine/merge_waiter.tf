@@ -19,10 +19,17 @@ resource "aws_codebuild_project" "merge_waiter" {
   }
   source {
       type            = "BITBUCKET"
-      location        = "https://bitbucket.org/tolunaengineering/chef.git"
+      location        = "https://bitbucket.org/tolunaengineering/${local.app_name}.git"
       git_clone_depth = 1
 
-      buildspec = "arn:aws:s3:::s3-${local.app_name}-${local.env_type}/${local.app_name}-${local.env_name}-buildspec.yml"
+      # buildspec = "arn:aws:s3:::s3-${local.app_name}-${local.env_type}/${local.app_name}-${local.env_name}-buildspec.yml"
+      buildspec = templatefile("${path.module}/merge-waiter-buildspec.yml.tpl", 
+        {
+          APP_NAME = local.app_name,
+          ENV_NAME = local.env_name,
+          ENV_TYPE = local.env_type
+        }
+      )
   }
 
   # source_version = "master"
@@ -37,7 +44,16 @@ resource "aws_codebuild_webhook" "merge_waiter_hook" {
   filter_group {
     filter {
       type    = "EVENT"
-      pattern = "PUSH"
+      pattern = "PULL_REQUEST_MERGED"
+    }
+
+    filter {
+      type    = "EVENT"
+      pattern = "PULL_REQUEST_CREATED"
+    }
+    filter {
+      type    = "EVENT"
+      pattern = "PULL_REQUEST_UPDATED"
     }
 
     filter {

@@ -80,7 +80,7 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
       "Type": "Task",
       "Resource": "arn:aws:states:::sqs:sendMessage.waitForTaskToken",
       "Parameters" : {
-        "QueueUrl" : "https://sqs.us-east-1.amazonaws.com/603106382807/QueueForSPDemo",
+        "QueueUrl" : "https://sqs.us-east-1.amazonaws.com/603106382807/${local.app_name}_${local.env_name}_merge_waiter_queue",
         "MessageBody" : {
           "MessageTitle": "Request invoked by SF. Waiting for callback from CodeBuild with task token.",
           "TaskToken.$": "$$.Task.Token"

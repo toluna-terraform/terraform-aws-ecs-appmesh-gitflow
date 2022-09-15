@@ -8,20 +8,13 @@ def lambda_handler(event, context):
   appName = os.getenv('APP_NAME')
   envName = os.getenv('ENV_NAME')
 
-  # getting current_color
-  # ssm_client = boto3.client("ssm", region_name="us-east-1")
-  # ssm_resonse = ssm_client.get_parameter (
-  #   Name = "/infra/{app}-{env}/current_color".format(app = appName, env = envName)
-  # )
-  # currentColor = ssm_resonse["Parameter"]["Value"]
-
   c = consul.Consul(
         host = "consul-cluster-test.consul.06a3e2e2-8cc2-4181-a81b-eb88cb8dfe0f.aws.hashicorp.cloud", 
         port = 80,
         token = "96e58b76-3bf6-c588-9a8a-347f80a751d5",
         scheme = "http"
         )
-  current_color_json = c.kv.get( "infra/chef-srinivas/current_color")
+  current_color_json = c.kv.get( "infra/{app}-{env}/current_color".format(app = appName,env = envName))
   currentColor = current_color_json[1]["Value"].decode('utf-8')
 
   # deploying updated version

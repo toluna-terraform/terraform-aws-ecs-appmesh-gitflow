@@ -198,14 +198,14 @@ POLICY
 }
 
 resource "aws_iam_policy_attachment" "attach_sqs_access" {
-  name       = "chef-srinivas-attach_sqs_access"
+  name       = "${local.app_name}-${local.env_name}-attach_sqs_access"
 
   roles      = [ "${aws_iam_role.merge_waiter_role.name}" ]
   policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
 }
 
 resource "aws_iam_policy_attachment" "attach_sf_access" {
-  name       = "chef-srinivas-attach_sf_access"
+  name       = "${local.app_name}-${local.env_name}-attach_sf_access"
 
   roles      = [ "${aws_iam_role.merge_waiter_role.name}" ]
   policy_arn = "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"

@@ -1,5 +1,7 @@
 locals {
-  codepipeline_name     = "codepipeline-${var.app_name}-${var.env_name}"
+  app_name = var.app_name
+  env_name = var.env_name
+  codepipeline_name     = "codepipeline-${local.app_name}-${local.env_name}"
 }
 
 resource "aws_codepipeline" "codepipeline" {
@@ -88,17 +90,10 @@ resource "aws_codepipeline" "codepipeline" {
 
         configuration = {
           # StateMachineArn = resource.aws_sfn_state_machine.sfn_state_machine.arn
-          StateMachineArn = "arn:aws:states:us-east-1:603106382807:stateMachine:chef-srinivas-state-machine"
+          StateMachineArn = "arn:aws:states:us-east-1:603106382807:stateMachine:${local.app_name}-${local.env_name}-state-machine"
           InputType = "Literal"
           Input = "{ \"input\": { \"name\": \"Srinivas\" },  \"output\": {  \"health_state\": \"healthy\"  }, \"results\": {  \"result1\": \"200 - ok\" }  }"
 
-          # ApplicationName = action.value
-          # DeploymentGroupName = "ecs-deploy-group-${var.env_name}"
-          # TaskDefinitionTemplateArtifact = var.pipeline_type == "dev" ? "dev_output" : "cd_output"
-          # TaskDefinitionTemplatePath = "taskdef.json"
-          # AppSpecTemplateArtifact = var.pipeline_type == "dev" ? "dev_output" : "cd_output"
-          # Image1ArtifactName = var.pipeline_type == "dev" ? "dev_output" : "cd_output"
-          # Image1ContainerName = "IMAGE1_NAME"
         }
       }
     }
