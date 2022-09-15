@@ -48,15 +48,6 @@ resource "aws_codebuild_webhook" "merge_waiter_hook" {
     }
 
     filter {
-      type    = "EVENT"
-      pattern = "PULL_REQUEST_CREATED"
-    }
-    filter {
-      type    = "EVENT"
-      pattern = "PULL_REQUEST_UPDATED"
-    }
-
-    filter {
       type    = "HEAD_REF"
       # pattern = "master"
       pattern = "trigger-appmesh-pipeline-br"
