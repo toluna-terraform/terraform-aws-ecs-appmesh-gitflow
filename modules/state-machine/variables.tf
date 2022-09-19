@@ -27,3 +27,7 @@ variable "run_stress_tests" {
     type = bool
     default = false
 }
+
+variable "current_color"{
+  type = string
+}

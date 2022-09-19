@@ -2,6 +2,7 @@ locals {
   app_name = var.app_name
   env_name = var.env_name
   env_type = var.env_type
+  next_color = (var.current_color == "green") ? "blue" : "green"
 }
 
 # ---- create Step Function Orchestration flow

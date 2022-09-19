@@ -32,9 +32,6 @@ resource "aws_codebuild_project" "merge_waiter" {
       )
   }
 
-  # source_version = "master"
-  source_version = "trigger-appmesh-pipeline-br"
-
 }
 
 # ---- git webhook for merge-waiter codebuild
