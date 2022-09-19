@@ -31,6 +31,8 @@ resource "aws_lambda_function" "deploy_updated_version" {
       ENV_NAME = var.env_name
     }
   }
+
+  timeout = 180
 }
 
 # ---- cleanup in case if tests fails in new env
@@ -57,6 +59,8 @@ resource "aws_lambda_function" "cleanup" {
       ENV_NAME = var.env_name
     }
   }
+
+  timeout = 180
 }
 
 # ---- run_integration_tests
@@ -87,6 +91,7 @@ resource "aws_lambda_function" "run_integration_tests" {
     }
   }
 
+  timeout = 180
 }
 
 # ---- run_stress_tests
@@ -117,6 +122,7 @@ resource "aws_lambda_function" "run_stress_tests" {
     }
   }
 
+  timeout = 600
 }
 
 # ---- shifting traffic
@@ -141,10 +147,13 @@ resource "aws_lambda_function" "shift_traffic" {
     variables = {
       APP_NAME = var.app_name
       ENV_NAME = var.env_name
+      ENV_TYPE = var.env_type
       MESH_OWNER = var.appmesh_owner
       MESH_NAME = var.appmesh_name
     }
   }
+
+  timeout = 180
 }
 
 

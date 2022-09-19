@@ -1,30 +1,46 @@
 import boto3
 import json
 import os
+import time
 import consul
 
 def lambda_handler(event, context):
 
   appName = os.getenv('APP_NAME')
   envName = os.getenv('ENV_NAME')
+  envType = os.getenv('ENV_TYPE')
   cluster_name = "{app}-{env}".format( app= appName, env = envName )
 
+  ssmClient = boto3.client('ssm')
+
+  consulResp = ssmClient.get_parameter(
+    Name = "/infra/{app}-{envtype}/consul_project_id".format(app = appName, envtype = envType)
+  )
+  consulProjId = consulResp["Parameter"]["Value"]
+
+  consulResp = ssmClient.get_parameter(
+    Name = "/infra/{app}-{envtype}/consul_http_token".format(app = appName, envtype = envType)
+  )
+  consulHttpToken = consulResp["Parameter"]["Value"]
+
   connection = consul.Consul(
-        host = "consul-cluster-test.consul.06a3e2e2-8cc2-4181-a81b-eb88cb8dfe0f.aws.hashicorp.cloud", 
+        host = "consul-cluster-test.consul.{proj}.aws.hashicorp.cloud".format(proj = consulProjId) , 
         port = 80,
-        token = "96e58b76-3bf6-c588-9a8a-347f80a751d5",
+        token = consulHttpToken,
         scheme = "http"
         )
 
   session = connection.session.create( behavior = "release", ttl=20 )
   
   current_color_tuple = connection.kv.get( "infra/{app}-{env}/current_color".format(app = appName, env = envName))
-  current_color = current_color_tuple[1]["Value"].decode('utf-8')
+  current_color = current_color_tuple[1]["Value"].decode()
 
   if current_color == "green":
     next_color = "blue"
   else:
     next_color = "green"
+
+  print ("next_color = ", next_color)
 
   # --- switch traffic at appmesh route
   client = boto3.client("appmesh", region_name="us-east-1")
@@ -66,6 +82,15 @@ def lambda_handler(event, context):
   print( json.dumps(response, indent=4, default=str))
 
   # update consul key current_color  with next_color
-  connection.kv.put( 'infra/{app}-{env}/current_color'.format(app = appName, env = envName) , next_color, acquire=session )
+  kv_update_return_code = False
+  iteration = 1
+  print ("next_color = ", next_color)
+  while kv_update_return_code == False : 
+    print ("iteration = ", iteration )
+    kv_update_return_code = connection.kv.put( 'infra/{app}-{env}/current_color'.format(app = appName, env = envName) , next_color, acquire=session )
+    # if kv_update_return_code == False : 
+    print ( "kv_update_return_code = ", kv_update_return_code)
+    time.sleep (10)
+    iteration = iteration + 1
   
   connection.session.destroy(session)

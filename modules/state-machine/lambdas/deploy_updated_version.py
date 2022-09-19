@@ -2,6 +2,7 @@ import boto3
 import json
 import os
 import consul
+import time
 
 def lambda_handler(event, context):
 
@@ -36,5 +37,8 @@ def lambda_handler(event, context):
     # updating taskdef
     taskDefinition = "{app}-{env}-{color}".format(app = appName, env = envName, color = nextColor) 
   )
+
+  # allowing time to stabilizing ECS tasks booted above
+  time.sleep(120)
 
 

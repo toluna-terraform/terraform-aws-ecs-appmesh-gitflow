@@ -48,9 +48,14 @@ resource "aws_codebuild_webhook" "merge_waiter_hook" {
     }
 
     filter {
-      type    = "HEAD_REF"
+      type    = "BASE_REF"
       # pattern = "master"
       pattern = "trigger-appmesh-pipeline-br"
+    }
+    
+    filter {
+      type    = "FILE_PATH"
+      pattern = "^terraform/app.*|^service.*|^tests/.*"
     }
   }
 }
