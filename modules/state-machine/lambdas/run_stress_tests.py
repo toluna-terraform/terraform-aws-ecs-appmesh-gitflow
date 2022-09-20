@@ -9,7 +9,8 @@ def lambda_handler(event, context):
   envType = os.getenv('ENV_TYPE')
 
   runStressTests = os.getenv('RUN_STRESS_TESTS')
-
+  print ("runStressTests = ", runStressTests)
+  
   if (runStressTests == "false" ):
      return { "is_healthy" : "true" }
 

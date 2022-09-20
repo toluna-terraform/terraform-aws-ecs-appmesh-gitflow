@@ -7,6 +7,7 @@ def lambda_handler(event, context):
 
   appName = os.getenv('APP_NAME')
   envName = os.getenv('ENV_NAME')
+  envType = os.getenv('ENV_TYPE')
 
 
   lambdaClient = boto3.client("lambda")
@@ -18,7 +19,13 @@ def lambda_handler(event, context):
     "report_group": "arn:aws:codebuild:us-east-1:603106382807:report-group/{app}-{env}-IntegrationTestReport".format(app = appName, env = envName)
   }
   
-  lambdaResp = lambdaClient.invoke(FunctionName="{app}-non-prod-integration-runner".format(app = appName), InvocationType='Event', Payload = json.dumps(lambdaPayloadJson) ) 
+  runIntegrationTests = os.getenv('RUN_INTEGRATION_TESTS')
+  print ("runStressTests = ", runIntegrationTests)
+  
+  if (runIntegrationTests == "false" ):
+     return { "is_healthy" : "true" }
+
+  lambdaResp = lambdaClient.invoke(FunctionName="{app}-{env}-integration-runner".format(app = appName, env = envType), InvocationType='Event', Payload = json.dumps(lambdaPayloadJson) ) 
   
   responseStatusCode =  lambdaResp["StatusCode"]
 
