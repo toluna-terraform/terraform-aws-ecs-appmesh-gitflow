@@ -96,3 +96,11 @@ variable "appmesh_name" {
 variable "pipeline_branch" {
     type = string
 }
+
+# variable "test_report_group" {
+#   type = string
+# }
+
+# variable "coverage_report_group" {
+#   type = string
+# }
