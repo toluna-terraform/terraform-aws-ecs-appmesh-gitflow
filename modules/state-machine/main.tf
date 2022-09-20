@@ -2,6 +2,7 @@ locals {
   app_name = var.app_name
   env_name = var.env_name
   env_type = var.env_type
+  pipeline_branch = var.pipeline_branch
   next_color = (var.current_color == "green") ? "blue" : "green"
 }
 

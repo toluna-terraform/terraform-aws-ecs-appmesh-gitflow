@@ -47,7 +47,7 @@ resource "aws_codebuild_webhook" "merge_waiter_hook" {
     filter {
       type    = "BASE_REF"
       # pattern = "master"
-      pattern = "trigger-appmesh-pipeline-br"
+      pattern = local.pipeline_branch
     }
     
     filter {

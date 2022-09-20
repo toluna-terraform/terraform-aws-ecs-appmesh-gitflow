@@ -31,3 +31,7 @@ variable "run_stress_tests" {
 variable "current_color"{
   type = string
 }
+
+variable "pipeline_branch" {
+  type = string
+}

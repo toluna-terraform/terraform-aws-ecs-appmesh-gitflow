@@ -90,6 +90,7 @@ module "state-machine" {
   env_name           = var.env_name
   env_type           = var.env_type
   current_color      = data.consul_keys.current_color.var.current_color
+  pipeline_branch    = var.pipeline_branch
 
   appmesh_owner      = var.appmesh_owner
   appmesh_name       = var.appmesh_name

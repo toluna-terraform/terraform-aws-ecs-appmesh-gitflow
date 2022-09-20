@@ -74,14 +74,6 @@ variable "termination_wait_time_in_minutes" {
   default = 120
 }
 
-# variable "test_report_group" {
-#   type = string
-# }
-
-# variable "coverage_report_group" {
-#   type = string
-# }
-
 variable "enable_jira_automation" {
   type = bool
   description = "flag to indicate if Jira automation is enabled"
@@ -93,5 +85,9 @@ variable "appmesh_owner" {
 }
 
 variable "appmesh_name" {
+    type = string
+}
+
+variable "pipeline_branch" {
     type = string
 }
