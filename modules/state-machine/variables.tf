@@ -35,3 +35,16 @@ variable "current_color"{
 variable "pipeline_branch" {
   type = string
 }
+
+variable "appmesh_profile" {
+  type = string
+}
+
+variable "region" {
+  type = string
+  default = "us-east-1"
+}
+
+variable "namespace" {
+  type = string
+}

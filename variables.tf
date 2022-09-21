@@ -97,6 +97,19 @@ variable "pipeline_branch" {
     type = string
 }
 
+variable "appmesh_profile" {
+  type = string
+}
+
+variable "region" {
+  type = string
+  default = "us-east-1"
+}
+
+variable "namespace" {
+  type = string
+}
+
 # variable "test_report_group" {
 #   type = string
 # }

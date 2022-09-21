@@ -94,6 +94,8 @@ module "state-machine" {
 
   appmesh_owner      = var.appmesh_owner
   appmesh_name       = var.appmesh_name
+  appmesh_profile    = var.appmesh_profile
+  namespace          = var.namespace
 
   run_integration_tests = var.run_integration_tests
   run_stress_tests      = var.run_stress_tests
