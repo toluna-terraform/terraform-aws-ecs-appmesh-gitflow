@@ -8,6 +8,7 @@ def lambda_handler(event, context):
   appName = os.getenv('APP_NAME')
   envName = os.getenv('ENV_NAME')
   envType = os.getenv('ENV_TYPE')
+  AwsAcctId = os.getenv('AWS_ACCOUNT_ID')
 
 
   lambdaClient = boto3.client("lambda")
@@ -16,7 +17,7 @@ def lambda_handler(event, context):
     "deploymentId": "0400baeb-ed0c-4eca-bc8e-435277e876cf",
     "lb_name": "qa.buffet-non-prod.toluna-internal.com",
     "environment": envName,
-    "report_group": "arn:aws:codebuild:us-east-1:603106382807:report-group/{app}-{env}-IntegrationTestReport".format(app = appName, env = envName)
+    "report_group": "arn:aws:codebuild:us-east-1:{aws_acct_id}:report-group/{app}-{env}-IntegrationTestReport".format(aws_acct_id = AwsAcctId, app = appName, env = envName)
   }
   
   runIntegrationTests = os.getenv('RUN_INTEGRATION_TESTS')

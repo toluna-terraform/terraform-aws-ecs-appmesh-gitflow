@@ -3,11 +3,12 @@ import boto3
 
 appName = ${APP_NAME}
 envName = ${ENV_NAME}
+AwsAccountId = ${AWS_ACCOUNT_ID}
 
 # ---- receive message from SQS
 sqsClient = boto3.client('sqs')
 message = sqsClient.receive_message(
-	QueueUrl="https://sqs.us-east-1.amazonaws.com/603106382807/{app}_{env}_merge_waiter_queue".format(app = appName, env = envName),
+	QueueUrl="https://sqs.us-east-1.amazonaws.com/{aws_acct_id}/{app}_{env}_merge_waiter_queue".format(aws_acct_id = AwsAccountId, app = appName, env = envName),
 	AttributeNames=[ 'All'],
 	MessageAttributeNames=[
 		'string',

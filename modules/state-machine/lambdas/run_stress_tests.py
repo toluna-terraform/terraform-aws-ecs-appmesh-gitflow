@@ -7,6 +7,8 @@ def lambda_handler(event, context):
   appName = os.getenv('APP_NAME')
   envName = os.getenv('ENV_NAME')
   envType = os.getenv('ENV_TYPE')
+  AwsAcctId = os.getenv('AWS_ACCOUNT_ID')
+
 
   runStressTests = os.getenv('RUN_STRESS_TESTS')
   print ("runStressTests = ", runStressTests)
@@ -23,7 +25,7 @@ def lambda_handler(event, context):
     "port": "443",
     "environment": "{env}".format(env = envName),
     "trigger": "{app}-{env_type}-test-framework-manager".format(app = appName, env_type = envType),
-    "report_group": "arn:aws:codebuild:us-east-1:603106382807:report-group/{app}-{env}-StressTestReport".format( app = appName, env = envName)
+    "report_group": "arn:aws:codebuild:us-east-1:{aws_acct_id}:report-group/{app}-{env}-StressTestReport".format( aws_acct_id = AwsAcctId, app = appName, env = envName)
   }
   
   lambdaResp = lambdaClient.invoke(FunctionName="{app}-{env_type}-stress-runner".format(app = appName, env_type = envType), InvocationType='Event', Payload = json.dumps(lambdaPayloadJson) ) 

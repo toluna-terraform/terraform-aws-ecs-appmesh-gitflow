@@ -64,7 +64,7 @@ resource "aws_iam_role_policy" "merge_waiter_policy" {
             "states:*"
         ],
         "Resource": [
-            "arn:aws:states:us-east-1:603106382807:stateMachine:${local.app_name}-${local.env_name}-state-machine"
+            "arn:aws:states:us-east-1:${local.aws_account_id}:stateMachine:${local.app_name}-${local.env_name}-state-machine"
         ]
     },  
     {
@@ -73,7 +73,7 @@ resource "aws_iam_role_policy" "merge_waiter_policy" {
             "sqs:*"
         ],
         "Resource": [
-            "arn:aws:sqs:us-east-1:603106382807:${local.app_name}_${local.env_name}_merge_waiter_queue"
+            "arn:aws:sqs:us-east-1:${local.aws_account_id}:${local.app_name}_${local.env_name}_merge_waiter_queue"
         ]
     }
   ]

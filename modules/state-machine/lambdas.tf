@@ -29,6 +29,8 @@ resource "aws_lambda_function" "deploy_updated_version" {
     variables = {
       APP_NAME = var.app_name
       ENV_NAME = var.env_name
+      MESH_NAME = var.appmesh_name
+      MESH_OWNER = var.appmesh_owner
     }
   }
 
@@ -87,6 +89,7 @@ resource "aws_lambda_function" "run_integration_tests" {
       ENV_NAME = var.env_name
       ENV_TYPE = var.env_type
       RUN_INTEGRATION_TESTS = var.run_integration_tests
+      AWS_ACCOUNT_ID = local.aws_account_id
       URL = "https://qa.buffet-non-prod.toluna-internal.com/${var.app_name}/${var.env_name}"
     }
   }
@@ -118,6 +121,7 @@ resource "aws_lambda_function" "run_stress_tests" {
       ENV_NAME = var.env_name
       ENV_TYPE = var.env_type
       RUN_STRESS_TESTS = var.run_stress_tests
+      AWS_ACCOUNT_ID = local.aws_account_id
       URL = "https://qa.buffet-non-prod.toluna-internal.com/${var.app_name}/${var.env_name}"
     }
   }

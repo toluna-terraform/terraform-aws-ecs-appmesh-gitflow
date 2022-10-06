@@ -90,7 +90,7 @@ resource "aws_codepipeline" "codepipeline" {
 
         configuration = {
           # StateMachineArn = resource.aws_sfn_state_machine.sfn_state_machine.arn
-          StateMachineArn = "arn:aws:states:us-east-1:603106382807:stateMachine:${local.app_name}-${local.env_name}-state-machine"
+          StateMachineArn = "arn:aws:states:us-east-1:${local.aws_account_id}:stateMachine:${local.app_name}-${local.env_name}-state-machine"
           InputType = "Literal"
           Input = "{ \"input\": { \"name\": \"Srinivas\" },  \"output\": {  \"health_state\": \"healthy\"  }, \"results\": {  \"result1\": \"200 - ok\" }  }"
 

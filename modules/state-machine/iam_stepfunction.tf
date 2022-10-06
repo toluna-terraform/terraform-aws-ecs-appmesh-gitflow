@@ -34,7 +34,7 @@ resource "aws_iam_role_policy" "InlinePolicyForSQSAccess4SF" {
             "Sid": "",
             "Effect": "Allow",
             "Action": "lambda:InvokeFunction",
-            "Resource": "arn:aws:lambda:*:603106382807:function:*"
+            "Resource": "arn:aws:lambda:*:${local.aws_account_id}:function:*"
         },
         {
             "Sid": "",
@@ -52,7 +52,7 @@ resource "aws_iam_role_policy" "InlinePolicyForSQSAccess4SF" {
             "Action": [
                 "sqs:*"
             ],
-            "Resource": "arn:aws:sqs:us-east-1:603106382807:${local.app_name}_${local.env_name}_merge_waiter_queue"
+            "Resource": "arn:aws:sqs:us-east-1:${local.aws_account_id}:${local.app_name}_${local.env_name}_merge_waiter_queue"
         }
     ]
 })

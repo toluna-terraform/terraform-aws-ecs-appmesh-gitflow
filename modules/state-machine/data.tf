@@ -12,3 +12,5 @@ data "template_file" "merge_waiter_py" {
     ENV_NAME = var.env_name
   }
 }
+
+data "aws_caller_identity" "current" {}

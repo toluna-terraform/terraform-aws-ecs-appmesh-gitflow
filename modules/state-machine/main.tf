@@ -4,6 +4,7 @@ locals {
   env_type = var.env_type
   pipeline_branch = var.pipeline_branch
   next_color = (var.current_color == "green") ? "blue" : "green"
+  aws_account_id = data.aws_caller_identity.current.account_id
 }
 
 # ---- create Step Function Orchestration flow
@@ -64,7 +65,7 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
         {
           "Variable": "$.is_healthy",
           "StringEquals": "true",
-          "Next": "SendMsgToSQS_WaitForMerge"
+          "Next": "Invoke-merge-waiter"
         },
         {  
           "Variable": "$.is_healthy",
@@ -78,15 +79,18 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
       "Resource": "${aws_lambda_function.cleanup.arn}",
       "End": true
     },
-    "SendMsgToSQS_WaitForMerge": {
+    "Invoke-merge-waiter": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::sqs:sendMessage.waitForTaskToken",
-      "Parameters" : {
-        "QueueUrl" : "https://sqs.us-east-1.amazonaws.com/603106382807/${local.app_name}_${local.env_name}_merge_waiter_queue",
-        "MessageBody" : {
-          "MessageTitle": "Request invoked by SF. Waiting for callback from CodeBuild with task token.",
-          "TaskToken.$": "$$.Task.Token"
-        }
+      "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+      "Parameters": {
+        "Payload": {
+          "DeploymentType" : "StepFunction" ,
+          "DeploymentId" : "DeploymentId_001",
+          "LifecycleEventHookExecutionId" : "LifecycleEventHookExecutionId_001", 
+          "environment" : "${var.env_name}", 
+          "taskToken.$": "$$.Task.Token"
+        },
+        "FunctionName": "chef-non-prod-merge-waiter",
       },
       "Next": "shift_traffic"
     },

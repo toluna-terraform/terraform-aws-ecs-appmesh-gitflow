@@ -33,7 +33,7 @@ resource "aws_iam_role_policy" "InlinePolicyForSQSAccess" {
             "Sid": "",
             "Effect": "Allow",
             "Action": "lambda:InvokeFunction",
-            "Resource": "arn:aws:lambda:*:603106382807:function:*"
+            "Resource": "arn:aws:lambda:*:${local.aws_account_id}:function:*"
         },
         {
             "Sid": "",
