@@ -1,4 +1,4 @@
-# --- lamda layer contains python modules of consul, etc
+# --- python lamda layer contains python modules of consul, etc
 resource "aws_lambda_layer_version" "ecs_appmesh_pipeline_layer" {
   filename   = "${path.module}/lambdas/ecs_appmesh_pipeline_layer.zip"
   layer_name = "ecs_appmesh_pipeline_layer"
@@ -158,6 +158,43 @@ resource "aws_lambda_function" "shift_traffic" {
   }
 
   timeout = 180
+}
+
+# --- python lamda layer contains python modules of consul, etc
+resource "aws_lambda_layer_version" "appmesh_pipeline_nodejs_layer" {
+  filename   = "${path.module}/lambdas/appmesh_pipeline_nodejs_layer.zip"
+  layer_name = "appmesh_pipeline_pipeline_layer"
+
+  compatible_runtimes = ["nodejs14.x"]
+}
+
+# ---- update consul key color to blue/green
+data "archive_file" "update_consul_bg_color_zip" {
+    type        = "zip"
+    source_file  = "${path.module}/lambdas/update_consul_bg_color.js"
+    output_path = "${path.module}/lambdas/update_consul_bg_color.zip"
+}
+
+resource "aws_lambda_function" "update_consul_bg_color" {
+  runtime = "nodejs14.x"
+
+  function_name = "${var.app_name}-${var.env_name}-update_consul_bg_color"
+  description = "Update consul key value of current_color to blue/green"
+  filename = "${path.module}/lambdas/update_consul_bg_color.zip"
+  layers = [ aws_lambda_layer_version.appmesh_pipeline_nodejs_layer.arn ]
+
+  role = "${aws_iam_role.iam_for_lambda.arn}"
+  handler = "update_consul_bg_color.handler"
+
+  environment {
+    variables = {
+      APP_NAME = var.app_name
+      ENV_NAME = var.env_name
+      ENV_TYPE = var.env_type
+    }
+  }
+
+  timeout = 60
 }
 
 

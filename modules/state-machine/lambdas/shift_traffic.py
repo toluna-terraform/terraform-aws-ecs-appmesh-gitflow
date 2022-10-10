@@ -81,16 +81,4 @@ def lambda_handler(event, context):
   )
   print( json.dumps(response, indent=4, default=str))
 
-  # update consul key current_color  with next_color
-  kv_update_return_code = False
-  iteration = 1
-  print ("next_color = ", next_color)
-  while kv_update_return_code == False : 
-    print ("iteration = ", iteration )
-    kv_update_return_code = connection.kv.put( 'infra/{app}-{env}/current_color'.format(app = appName, env = envName) , next_color, acquire=session )
-    # if kv_update_return_code == False : 
-    print ( "kv_update_return_code = ", kv_update_return_code)
-    time.sleep (10)
-    iteration = iteration + 1
-  
   connection.session.destroy(session)

@@ -106,9 +106,9 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable "namespace" {
-  type = string
-}
+    variable "namespace" {
+    type = string
+    }
 
 # variable "test_report_group" {
 #   type = string

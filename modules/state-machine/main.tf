@@ -83,20 +83,25 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
       "Parameters": {
+        "FunctionName": "${var.app_name}-${var.env_type}-merge-waiter",
         "Payload": {
-          "DeploymentType" : "StepFunction" ,
-          "DeploymentId" : "DeploymentId_001",
-          "LifecycleEventHookExecutionId" : "LifecycleEventHookExecutionId_001", 
+          "DeploymentType" : "AppMesh" ,
+          "DeploymentId" : "Dummy_DeploymentId",
+          "LifecycleEventHookExecutionId" : "Dummy_LifecycleEventHookExecutionId", 
           "environment" : "${var.env_name}", 
           "taskToken.$": "$$.Task.Token"
-        },
-        "FunctionName": "chef-non-prod-merge-waiter",
+        }
       },
       "Next": "shift_traffic"
     },
     "shift_traffic": {
       "Type": "Task",
       "Resource": "${aws_lambda_function.shift_traffic.arn}",
+      "Next": "update_consul_bg_color"
+    },
+    "update_consul_bg_color": {
+      "Type": "Task",
+      "Resource": "${aws_lambda_function.update_consul_bg_color.arn}",
       "End": true
     }
   }

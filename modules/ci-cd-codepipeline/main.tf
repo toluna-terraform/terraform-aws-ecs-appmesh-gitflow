@@ -2,6 +2,7 @@ locals {
   app_name = var.app_name
   env_name = var.env_name
   codepipeline_name     = "codepipeline-${local.app_name}-${local.env_name}"
+  aws_account_id = data.aws_caller_identity.current.account_id
 }
 
 resource "aws_codepipeline" "codepipeline" {
