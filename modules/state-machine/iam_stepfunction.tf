@@ -1,6 +1,6 @@
 # ---- IAM role for Step function
 resource "aws_iam_role" "iam_for_sfn" {
-  name = "iam_for_sfn"
+  name = "sf-role-${local.app_name}-${local.env_name}"
   managed_policy_arns = [ "arn:aws:iam::aws:policy/service-role/AWSLambdaRole" ]
 
   assume_role_policy = <<EOF

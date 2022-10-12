@@ -29,6 +29,7 @@ resource "aws_lambda_function" "deploy_updated_version" {
     variables = {
       APP_NAME = var.app_name
       ENV_NAME = var.env_name
+      ENV_TYPE = var.env_type
       MESH_NAME = var.appmesh_name
       MESH_OWNER = var.appmesh_owner
     }
