@@ -1,6 +1,6 @@
 # ---- iam role for Lambdas
 resource "aws_iam_role" "iam_for_lambda" {
-  name = "iam_for_lambda"
+  name = "lambda-role-${local.app_name}-${local.env_name}"
 
   assume_role_policy = <<EOF
 {
