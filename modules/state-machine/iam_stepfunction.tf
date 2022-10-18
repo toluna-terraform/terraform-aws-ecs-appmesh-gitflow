@@ -22,7 +22,7 @@ EOF
 
 # ---- Attach inline policy to access SQS, CloudWatch, etc
 resource "aws_iam_role_policy" "InlinePolicyForSQSAccess4SF" {
-  name = "InlinePolicyForSQSAccess4SF"
+  name = "InlinePolicyForSF"
   role = aws_iam_role.iam_for_sfn.id
 
   # Terraform's "jsonencode" function converts a
@@ -45,14 +45,6 @@ resource "aws_iam_role_policy" "InlinePolicyForSQSAccess4SF" {
                 "logs:CreateLogGroup"
             ],
             "Resource": "*"
-        },
-        {
-            "Sid": "",
-            "Effect": "Allow",
-            "Action": [
-                "sqs:*"
-            ],
-            "Resource": "arn:aws:sqs:us-east-1:${local.aws_account_id}:${local.app_name}_${local.env_name}_merge_waiter_queue"
         }
     ]
 })

@@ -11,6 +11,7 @@ def lambda_handler(event, context):
   AwsAcctId = os.getenv('AWS_ACCOUNT_ID')
 
 
+
   lambdaClient = boto3.client("lambda")
   
   lambdaPayloadJson = {

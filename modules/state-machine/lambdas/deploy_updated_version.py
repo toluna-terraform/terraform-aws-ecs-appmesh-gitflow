@@ -8,29 +8,37 @@ def lambda_handler(event, context):
 
   appName = os.getenv('APP_NAME')
   envName = os.getenv('ENV_NAME')
+  envType = os.getenv('ENV_TYPE')
 
-  appName = os.getenv('MESH_NAME')
-  envName = os.getenv('MESH_OWNER')
+  # getting consul proj id, and token from SSM
+  ssm_client = boto3.client("ssm", region_name="us-east-1")
 
+  ssm_resonse = ssm_client.get_parameter ( Name = "/infra/{app}-{envtype}/consul_project_id".format(app = appName, envtype = envType)  )
+  consulProjId = ssm_resonse["Parameter"]["Value"]
+
+  ssm_resonse = ssm_client.get_parameter ( Name = "/infra/{app}-{envtype}/consul_http_token".format(app = appName, envtype = envType)  )
+  consulToken = ssm_resonse["Parameter"]["Value"]
+
+  # getting current_color
   c = consul.Consul(
-        host = "consul-cluster-test.consul.06a3e2e2-8cc2-4181-a81b-eb88cb8dfe0f.aws.hashicorp.cloud", 
+        host = "consul-cluster-test.consul.{projId}.aws.hashicorp.cloud".format(projId = consulProjId) , 
         port = 80,
-        token = "96e58b76-3bf6-c588-9a8a-347f80a751d5",
+        token = consulToken,
         scheme = "http"
         )
-  current_color_json = c.kv.get( "infra/{app}-{env}/current_color".format(app = appName,env = envName))
+  current_color_json = c.kv.get( "infra/chef-srinivas/current_color")
   currentColor = current_color_json[1]["Value"].decode('utf-8')
+  print ("currentColor = " + currentColor)
 
-  # deploying updated version
-  client = boto3.client("ecs", region_name="us-east-1")
   if currentColor == "green":
     nextColor = "blue"
   else:
     nextColor = "green"
 
+  # deploying updated version
+  client = boto3.client("ecs", region_name="us-east-1")
   cluster_name = "{app}-{env}".format(app = appName, env = envName)
   print ("cluster_name = " + cluster_name)
-
 
   # start next_color tasks
   response = client.update_service(
@@ -44,25 +52,25 @@ def lambda_handler(event, context):
   # allowing time to stabilizing ECS tasks booted above
   time.sleep(120)
 
-  # --- change test route to next_color so that, 
-  # integ tests and stress tests will happen in the test route
+  # --- change Route in test VR to next_color so that, 
+  # integ tests and stress tests will happen in the test VR route
   client = boto3.client("appmesh", region_name="us-east-1")
   response = client.update_route (
     meshName = os.getenv('MESH_NAME'), 
     meshOwner = os.getenv('MESH_OWNER'),
-    virtualRouterName = "vr-{app}-{env}".format(app = appName, env = envName) ,
+    virtualRouterName = "vr-{app}-{env}-test".format(app = appName, env = envName) ,
     # this is name of test route used only for tests
-    routeName = "route-{app}-{env}-test".format(app = appName, env = envName) , 
+    routeName = "route-{app}-{env}".format(app = appName, env = envName) , 
     spec= {
         'httpRoute': {
             'action': {
                 'weightedTargets': [
                     {
-                        'virtualNode': 'vn-{app}-{env}-{color}'.format(app = appName, env = envName, color = current_color) ,
+                        'virtualNode': 'vn-{app}-{env}-{color}'.format(app = appName, env = envName, color = currentColor) ,
                         'weight': 0
                     },
                     {
-                        'virtualNode': 'vn-{app}-{env}-{color}'.format(app = appName, env = envName, color = next_color),
+                        'virtualNode': 'vn-{app}-{env}-{color}'.format(app = appName, env = envName, color = nextColor),
                         'weight': 100
                     }
                 ]
@@ -73,6 +81,3 @@ def lambda_handler(event, context):
         }
     }
   )
-
-
-

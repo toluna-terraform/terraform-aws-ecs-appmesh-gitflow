@@ -32,15 +32,16 @@ def lambda_handler(event, context):
 
   session = connection.session.create( behavior = "release", ttl=20 )
   
+  # previous color is already changed in SF. Hence, keep current_color tasks
   current_color_tuple = connection.kv.get( "infra/{app}-{env}/current_color".format(app = appName, env = envName))
   current_color = current_color_tuple[1]["Value"].decode()
 
   if current_color == "green":
-    next_color = "blue"
+    previous_color = "blue"
   else:
-    next_color = "green"
+    previous_color = "green"
 
-  print ("next_color = ", next_color)
+  print ("previous_color = ", previous_color)
 
   # --- switch traffic at appmesh route
   client = boto3.client("appmesh", region_name="us-east-1")
@@ -55,11 +56,11 @@ def lambda_handler(event, context):
                 'weightedTargets': [
                     {
                         'virtualNode': 'vn-{app}-{env}-{color}'.format(app = appName, env = envName, color = current_color) ,
-                        'weight': 0
+                        'weight': 100
                     },
                     {
-                        'virtualNode': 'vn-{app}-{env}-{color}'.format(app = appName, env = envName, color = next_color),
-                        'weight': 100
+                        'virtualNode': 'vn-{app}-{env}-{color}'.format(app = appName, env = envName, color = previous_color),
+                        'weight': 0
                     }
                 ]
             },
@@ -70,13 +71,13 @@ def lambda_handler(event, context):
     }
   )
 
-  # shutdown curent_color tasks
+  # shutdown previous_color tasks
   client = boto3.client("ecs", region_name="us-east-1")
   
   print ("cluster_name = " + cluster_name)
   response = client.update_service(
     cluster = cluster_name,
-    service = "{app}-{color}".format(app = appName, color = current_color) ,
+    service = "{app}-{color}".format(app = appName, color = previous_color) ,
     desiredCount = 0
   )
   print( json.dumps(response, indent=4, default=str))
