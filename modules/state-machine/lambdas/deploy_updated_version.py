@@ -53,7 +53,7 @@ def lambda_handler(event, context):
   time.sleep(120)
 
   # --- change Route in test VR to next_color so that, 
-  # integ tests and stress tests will happen in the test VR route
+  # integ tests and stress tests will happen in the test route
   client = boto3.client("appmesh", region_name="us-east-1")
   response = client.update_route (
     meshName = os.getenv('MESH_NAME'), 

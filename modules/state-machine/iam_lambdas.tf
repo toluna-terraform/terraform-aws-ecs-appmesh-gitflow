@@ -19,7 +19,7 @@ resource "aws_iam_role" "iam_for_lambda" {
 EOF
 }
 
-# Attach inline policy to access SQS, CloudWatch, etc
+# Attach inline policy to access CloudWatch, etc
 resource "aws_iam_role_policy" "InlinePolicyForSQSAccess" {
   name = "InlinePolicyForSQSAccess"
   role = aws_iam_role.iam_for_lambda.id
@@ -44,14 +44,6 @@ resource "aws_iam_role_policy" "InlinePolicyForSQSAccess" {
                 "logs:CreateLogGroup"
             ],
             "Resource": "*"
-        },
-        {
-            "Sid": "",
-            "Effect": "Allow",
-            "Action": [
-                "sqs:*"
-            ],
-            "Resource": "*"
         }
     ]
 })
@@ -70,5 +62,12 @@ resource "aws_iam_policy_attachment" "attach-ecs-policy" {
   name       = "attach-ecs-policy"
   roles      = [ aws_iam_role.iam_for_lambda.name ]
   policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+}
+
+# Attach SSM access
+resource "aws_iam_policy_attachment" "attach-ssm-policy" {
+  name       = "attach-ssm-policy"
+  roles      = [ aws_iam_role.iam_for_lambda.name ]
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
 }
 

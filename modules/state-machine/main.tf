@@ -84,11 +84,11 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
       "Parameters": {
-        "FunctionName": "${var.app_name}-${var.env_type}-appmesh-task-token",
+        "FunctionName": "${var.app_name}-${var.env_type}-appmesh-sf-task-token",
         "Payload": {
           "DeploymentType" : "AppMesh" ,
           "CallerId" : "StepFunction",
-          "environment" : "${var.env_name}", 
+          "environment" : "${var.env_type}", 
           "TaskToken.$": "$$.Task.Token"
         }
       },
