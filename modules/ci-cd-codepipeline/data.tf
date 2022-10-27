@@ -42,7 +42,12 @@ data "aws_iam_policy_document" "codepipeline_role_policy" {
     ]
     resources = ["*"]
   }
-
+  statement {
+      actions = [
+            "states:*"
+      ]
+      resources = ["*"]
+  }
   statement {
     actions = [
       "codedeploy:*"

@@ -20,9 +20,9 @@ resource "aws_iam_role" "iam_for_sfn" {
 EOF
 }
 
-# ---- Attach inline policy to access SQS, CloudWatch, etc
-resource "aws_iam_role_policy" "InlinePolicyForSQSAccess4SF" {
-  name = "InlinePolicyForSF"
+# ---- Attach inline policy to CloudWatch, etc
+resource "aws_iam_role_policy" "InlinePolicyForSFAccess" {
+  name = "InlinePolicyForSFAccess"
   role = aws_iam_role.iam_for_sfn.id
 
   # Terraform's "jsonencode" function converts a

@@ -58,9 +58,9 @@ def lambda_handler(event, context):
   response = client.update_route (
     meshName = os.getenv('MESH_NAME'), 
     meshOwner = os.getenv('MESH_OWNER'),
-    virtualRouterName = "vr-{app}-{env}-test".format(app = appName, env = envName) ,
+    virtualRouterName = "vr-{app}-{env}".format(app = appName, env = envName) ,
     # this is name of test route used only for tests
-    routeName = "route-{app}-{env}".format(app = appName, env = envName) , 
+    routeName = "route-{app}-{env}-test".format(app = appName, env = envName) , 
     spec= {
         'httpRoute': {
             'action': {

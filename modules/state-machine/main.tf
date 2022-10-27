@@ -37,10 +37,10 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
           "StressResults": false,
           "environment" : "${var.env_name}", 
           "trigger": "${local.app_name}-${local.env_name}-state-machine",
-          "lb_name": "${local.apapmesh_name}.${local.appmesh_profile}.toluna-internal.com",
+          "lb_name": "${local.appmesh_name}.${local.appmesh_profile}.toluna-internal.com",
           "integration_report_group": "arn:aws:codebuild:us-east-1:${local.aws_account_id}:report-group/${local.app_name}-${local.env_name}-IntegrationTestReport",
           "stress_report_group": "arn:aws:codebuild:us-east-1:${local.aws_account_id}:report-group/${local.app_name}-${local.env_name}-StressTestReport",
-          "taskToken.$": "$$.Task.Token"
+          "TaskToken.$": "$$.Task.Token"
         }
       },
       "Next": "validate_test_results"
@@ -84,7 +84,7 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
       "Parameters": {
-        "FunctionName": "${var.app_name}-${var.env_type}-appmesh-sf-task-token",
+        "FunctionName": "${var.app_name}-${var.env_name}-appmesh-sf-task-token",
         "Payload": {
           "DeploymentType" : "AppMesh" ,
           "CallerId" : "StepFunction",

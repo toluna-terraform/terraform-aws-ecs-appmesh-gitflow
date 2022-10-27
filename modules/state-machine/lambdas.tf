@@ -20,6 +20,7 @@ resource "aws_lambda_function" "deploy_updated_version" {
 
   description = "Changes ECS service between blue and green "
   filename = "${path.module}/lambdas/deploy_updated_version.zip"
+  source_code_hash = filebase64sha256("${path.module}/lambdas/deploy_updated_version.zip")
   layers = [ aws_lambda_layer_version.ecs_appmesh_pipeline_layer.arn ]
 
   role = "${aws_iam_role.iam_for_lambda.arn}"
@@ -52,6 +53,7 @@ resource "aws_lambda_function" "cleanup" {
   function_name = "${var.app_name}-${var.env_name}-cleanup"
   description = "cleanup services on applicatin nextColor service "
   filename = "${path.module}/lambdas/cleanup.zip"
+  source_code_hash = filebase64sha256("${path.module}/lambdas/cleanup.zip")
 
   role = "${aws_iam_role.iam_for_lambda.arn}"
   handler = "cleanup.lambda_handler"
@@ -80,6 +82,7 @@ resource "aws_lambda_function" "run_integration_tests" {
   function_name = "${var.app_name}-${var.env_name}-run_integration_tests"
   description = "Run Integration tests on nextColor service of application to decide if traffic can be switched."
   filename = "${path.module}/lambdas/run_integration_tests.zip"
+  source_code_hash = filebase64sha256("${path.module}/lambdas/run_integration_tests.zip")
 
   role = "${aws_iam_role.iam_for_lambda.arn}"
   handler = "run_integration_tests.lambda_handler"
@@ -112,6 +115,7 @@ resource "aws_lambda_function" "run_stress_tests" {
   function_name = "${var.app_name}-${var.env_name}-run_stress_tests"
   description = "Run Stress tests on nextColor service of application to decide if traffic can be switched."
   filename = "${path.module}/lambdas/run_stress_tests.zip"
+  source_code_hash = filebase64sha256("${path.module}/lambdas/run_stress_tests.zip")
 
   role = "${aws_iam_role.iam_for_lambda.arn}"
   handler = "run_stress_tests.lambda_handler"
@@ -143,6 +147,7 @@ resource "aws_lambda_function" "shift_traffic" {
   function_name = "${var.app_name}-${var.env_name}-shift_traffic"
   description = "Changes traffic between blue and green by switching route weight"
   filename = "${path.module}/lambdas/shift_traffic.zip"
+  source_code_hash = filebase64sha256("${path.module}/lambdas/shift_traffic.zip")
   layers = [ aws_lambda_layer_version.ecs_appmesh_pipeline_layer.arn ]
 
   role = "${aws_iam_role.iam_for_lambda.arn}"
@@ -182,6 +187,7 @@ resource "aws_lambda_function" "update_consul_bg_color" {
   function_name = "${var.app_name}-${var.env_name}-update_consul_bg_color"
   description = "Update consul key value of current_color to blue/green"
   filename = "${path.module}/lambdas/update_consul_bg_color.zip"
+  source_code_hash = filebase64sha256("${path.module}/lambdas/update_consul_bg_color.zip")
   layers = [ aws_lambda_layer_version.appmesh_pipeline_nodejs_layer.arn ]
 
   role = "${aws_iam_role.iam_for_lambda.arn}"
