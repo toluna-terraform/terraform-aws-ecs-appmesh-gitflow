@@ -49,13 +49,13 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.StatusCode",
-          "StringEquals": "200",
+          "Variable": "$.TestsSuccessful",
+          "BooleanEquals": true,
           "Next": "notify_merge_readiness_in_PR"
         },
         {  
-          "Variable": "$.StatusCode",
-          "StringEquals": "400",
+          "Variable": "$.TestsSuccessful",
+          "BooleanEquals": false  ,
           "Next": "CleanUp"
         }
       ]

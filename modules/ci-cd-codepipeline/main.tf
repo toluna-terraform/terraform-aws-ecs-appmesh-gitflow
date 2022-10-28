@@ -79,7 +79,7 @@ resource "aws_codepipeline" "codepipeline" {
 
 
   stage {
-    name = "${var.app_name}-${var.env_name}-StateMachine"
+    name = "sf-deploy-test"
     dynamic "action" {
       for_each = var.code_deploy_applications
       content {
