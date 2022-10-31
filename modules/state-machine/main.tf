@@ -6,6 +6,7 @@ locals {
   pipeline_branch = var.pipeline_branch
   next_color = (var.current_color == "green") ? "blue" : "green"
   aws_account_id = data.aws_caller_identity.current.account_id
+  merge_timeout_seconds = data.aws_ssm_parameter.merge_timeout_seconds.value
   appmesh_profile = var.appmesh_profile
   appmesh_name = var.appmesh_name
 }
@@ -97,7 +98,7 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
           "TaskToken.$": "$$.Task.Token"
         }
       },
-      "TimeoutSeconds": 7200,
+      "TimeoutSeconds": ${local.merge_timeout_seconds},
       "Next": "is_merged"
     },
     "is_merged": {

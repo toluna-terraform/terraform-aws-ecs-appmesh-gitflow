@@ -26,7 +26,7 @@ def lambda_handler(event, context):
         token = consulToken,
         scheme = "http"
         )
-  current_color_json = c.kv.get( "infra/chef-srinivas/current_color")
+  current_color_json = c.kv.get( "infra/{app}-{env}/current_color".format(app = appName, env = envName))
   currentColor = current_color_json[1]["Value"].decode('utf-8')
   print ("currentColor = " + currentColor)
 
