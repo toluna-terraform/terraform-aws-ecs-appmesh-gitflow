@@ -63,7 +63,12 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
     "CleanUp": {
       "Type": "Task",
       "Resource": "${aws_lambda_function.cleanup.arn}",
-      "End": true
+      "Next": "MarkAsFailed"
+    },
+    "MarkAsFailed": {
+      "Type": "Fail",
+      "Cause": "Deployment or Tests failed",
+      "Error": "Deployment or Tests failed"
     },
     "notify_merge_readiness_in_PR": {
       "Type": "Task",
@@ -92,6 +97,7 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
           "TaskToken.$": "$$.Task.Token"
         }
       },
+      "TimeoutSeconds": 7200,
       "Next": "is_merged"
     },
     "is_merged": {

@@ -26,18 +26,18 @@ resource "aws_iam_role_policy" "inline_policy_lambda_role" {
 }
 
 # Attach App mesh access
-resource "aws_iam_policy_attachment" "attach-appmesh-policy" {
-  name       = "attach-appmesh-policy"
-  roles      = [ aws_iam_role.iam_for_lambda.name ]
-  policy_arn = "arn:aws:iam::aws:policy/AWSAppMeshFullAccess"
-}
+# resource "aws_iam_policy_attachment" "attach-appmesh-policy" {
+#   name       = "attach-appmesh-policy"
+#   roles      = [ aws_iam_role.iam_for_lambda.name ]
+#   policy_arn = "arn:aws:iam::aws:policy/AWSAppMeshFullAccess"
+# }
 
 # Attach ECS access
-resource "aws_iam_policy_attachment" "attach-ecs-policy" {
-  name       = "attach-ecs-policy"
-  roles      = [ aws_iam_role.iam_for_lambda.name ]
-  policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
-}
+# resource "aws_iam_policy_attachment" "attach-ecs-policy" {
+#   name       = "attach-ecs-policy"
+#   roles      = [ aws_iam_role.iam_for_lambda.name ]
+#   policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+# }
 
 # # Attach SSM access
 # resource "aws_iam_policy_attachment" "attach-ssm-policy" {

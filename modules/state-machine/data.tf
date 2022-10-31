@@ -20,4 +20,31 @@ data "aws_iam_policy_document" "inline-policy-lambda-role-doc" {
     ]
     resources = ["*"]
   }
+  statement {
+    actions = [
+      "ecs:*"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    actions = [
+      "iam:PassRole"
+    ]
+    resources = ["arn:aws:iam::*:role/role-ecs-${var.app_name}-${var.env_name}"]
+  }
+  statement {
+    actions   = ["iam:PassRole"]
+    resources = ["*"]
+    condition {
+      test = "StringEqualsIfExists"
+      variable = "iam:PassedToService"
+      values = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+  statement {
+    actions = [
+      "appmesh:*"
+    ]
+    resources = ["*"]
+  }
 }
