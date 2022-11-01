@@ -6,7 +6,7 @@ data "consul_keys" "current_color" {
 }
 
 data "aws_ssm_parameter" "merge_timeout_seconds" {
-    name    = "/infra/${var.app_name}-${env_name}/merge_timeout_seconds"
+    name    = "/infra/${var.app_name}-${var.env_name}/merge_timeout_seconds"
 }
 
 data "aws_caller_identity" "current" {}
