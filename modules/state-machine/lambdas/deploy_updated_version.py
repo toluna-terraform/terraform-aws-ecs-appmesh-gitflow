@@ -13,10 +13,10 @@ def lambda_handler(event, context):
   # getting consul proj id, and token from SSM
   ssm_client = boto3.client("ssm", region_name="us-east-1")
 
-  ssm_resonse = ssm_client.get_parameter ( Name = "/infra/{app}-{envtype}/consul_project_id".format(app = appName, envtype = envType)  )
+  ssm_resonse = ssm_client.get_parameter ( Name = "/infra/{app}-{envtype}/consul_project_id".format(app = appName, envtype = envType), WithDecryption=True  )
   consulProjId = ssm_resonse["Parameter"]["Value"]
 
-  ssm_resonse = ssm_client.get_parameter ( Name = "/infra/{app}-{envtype}/consul_http_token".format(app = appName, envtype = envType)  )
+  ssm_resonse = ssm_client.get_parameter ( Name = "/infra/{app}-{envtype}/consul_http_token".format(app = appName, envtype = envType), WithDecryption=True  )
   consulToken = ssm_resonse["Parameter"]["Value"]
 
   # getting current_color
@@ -62,6 +62,7 @@ def lambda_handler(event, context):
     # this is name of test route used only for tests
     routeName = "route-{app}-{env}-test".format(app = appName, env = envName) , 
     spec= {
+        'priority' : 1,
         'httpRoute': {
             'action': {
                 'weightedTargets': [
@@ -76,7 +77,15 @@ def lambda_handler(event, context):
                 ]
             },
             'match': {
-                'prefix': '/'
+                'prefix': '/',
+                'headers': [
+                    {
+                        'name': 'test-header',
+                        'match': {
+                            'exact': 'test-value'
+                        },
+                    },
+                ]
             }
         }
     }

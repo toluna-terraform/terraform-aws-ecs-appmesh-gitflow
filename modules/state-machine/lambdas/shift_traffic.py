@@ -14,12 +14,14 @@ def lambda_handler(event, context):
   ssmClient = boto3.client('ssm')
 
   consulResp = ssmClient.get_parameter(
-    Name = "/infra/{app}-{envtype}/consul_project_id".format(app = appName, envtype = envType)
+    Name = "/infra/{app}-{envtype}/consul_project_id".format(app = appName, envtype = envType), 
+    WithDecryption=True
   )
   consulProjId = consulResp["Parameter"]["Value"]
 
   consulResp = ssmClient.get_parameter(
-    Name = "/infra/{app}-{envtype}/consul_http_token".format(app = appName, envtype = envType)
+    Name = "/infra/{app}-{envtype}/consul_http_token".format(app = appName, envtype = envType),
+    WithDecryption=True
   )
   consulHttpToken = consulResp["Parameter"]["Value"]
 
