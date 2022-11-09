@@ -14,6 +14,14 @@ data "aws_caller_identity" "current" {}
 data "aws_iam_policy_document" "inline-policy-lambda-role-doc" {
   statement {
     actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    actions = [
       "ssm:*"
     ]
     resources = ["*"]

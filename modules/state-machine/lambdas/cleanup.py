@@ -9,12 +9,6 @@ def lambda_handler(event, context):
   currentColor = os.getenv('CURRENT_COLOR')
   cluster_name = '{app}-{env}'.format(app = appName, env = envName)
 
-  # getting current_color
-  # ssm_client = boto3.client("ssm", region_name="us-east-1")
-  # ssm_resonse = ssm_client.get_parameter    (
-  #   Name = '/infra/{app}-{env}/current_color'.format(app = appName, env = envName)
-  # )
-  # currentColor = ssm_resonse["Parameter"]["Value"]
   
   print ("currentColor = " + currentColor)
   if currentColor == "green":
