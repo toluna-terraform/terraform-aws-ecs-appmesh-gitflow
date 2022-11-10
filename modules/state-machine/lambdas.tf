@@ -62,78 +62,13 @@ resource "aws_lambda_function" "cleanup" {
     variables = {
       APP_NAME = var.app_name
       ENV_NAME = var.env_name
-      CURRENT_COLOR = var.current_color
+      ENV_TYPE = var.env_type
     }
   }
 
   timeout = 180
 }
 
-# ---- run_integration_tests
-
-# data "archive_file" "run_integration_tests_zip" {
-#     type        = "zip"
-#     source_file  = "${path.module}/lambdas/run_integration_tests.py"
-#     output_path = "${path.module}/lambdas/run_integration_tests.zip"
-# }
-
-# resource "aws_lambda_function" "run_integration_tests" {
-#   runtime = "python3.9"
-
-#   function_name = "${var.app_name}-${var.env_name}-run_integration_tests"
-#   description = "Run Integration tests on nextColor service of application to decide if traffic can be switched."
-#   filename = "${path.module}/lambdas/run_integration_tests.zip"
-#   source_code_hash = filebase64sha256("${path.module}/lambdas/run_integration_tests.zip")
-
-#   role = "${aws_iam_role.iam_for_lambda.arn}"
-#   handler = "run_integration_tests.lambda_handler"
-
-#   environment {
-#     variables = {
-#       APP_NAME = var.app_name
-#       ENV_NAME = var.env_name
-#       ENV_TYPE = var.env_type
-#       RUN_INTEGRATION_TESTS = var.run_integration_tests
-#       AWS_ACCOUNT_ID = local.aws_account_id
-#       URL = "https://qa.buffet-non-prod.toluna-internal.com/${var.app_name}/${var.env_name}"
-#     }
-#   }
-
-#   timeout = 180
-# }
-
-# ---- run_stress_tests
-
-# data "archive_file" "run_stress_tests_zip" {
-#     type        = "zip"
-#     source_file  = "${path.module}/lambdas/run_stress_tests.py"
-#     output_path = "${path.module}/lambdas/run_stress_tests.zip"
-# }
-
-# resource "aws_lambda_function" "run_stress_tests" {
-#   runtime = "python3.9"
-
-#   function_name = "${var.app_name}-${var.env_name}-run_stress_tests"
-#   description = "Run Stress tests on nextColor service of application to decide if traffic can be switched."
-#   filename = "${path.module}/lambdas/run_stress_tests.zip"
-#   source_code_hash = filebase64sha256("${path.module}/lambdas/run_stress_tests.zip")
-
-#   role = "${aws_iam_role.iam_for_lambda.arn}"
-#   handler = "run_stress_tests.lambda_handler"
-
-#   environment {
-#     variables = {
-#       APP_NAME = var.app_name
-#       ENV_NAME = var.env_name
-#       ENV_TYPE = var.env_type
-#       RUN_STRESS_TESTS = var.run_stress_tests
-#       AWS_ACCOUNT_ID = local.aws_account_id
-#       URL = "https://qa.buffet-non-prod.toluna-internal.com/${var.app_name}/${var.env_name}"
-#     }
-#   }
-
-#   timeout = 600
-# }
 
 # ---- shifting traffic
 data "archive_file" "shift_traffic_zip" {

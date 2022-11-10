@@ -25,31 +25,3 @@ resource "aws_iam_role_policy" "inline_policy_lambda_role" {
   policy = data.aws_iam_policy_document.inline-policy-lambda-role-doc.json
 }
 
-# Attach App mesh access
-# resource "aws_iam_policy_attachment" "attach-appmesh-policy" {
-#   name       = "attach-appmesh-policy"
-#   roles      = [ aws_iam_role.iam_for_lambda.name ]
-#   policy_arn = "arn:aws:iam::aws:policy/AWSAppMeshFullAccess"
-# }
-
-# Attach ECS access
-# resource "aws_iam_policy_attachment" "attach-ecs-policy" {
-#   name       = "attach-ecs-policy"
-#   roles      = [ aws_iam_role.iam_for_lambda.name ]
-#   policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
-# }
-
-# # Attach SSM access
-# resource "aws_iam_policy_attachment" "attach-ssm-policy" {
-#   name       = "attach-ssm-policy"
-#   roles      = [ aws_iam_role.iam_for_lambda.name ]
-#   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
-# }
-
-# # Attach SF access
-# resource "aws_iam_policy_attachment" "attach-sf-policy" {
-#   name       = "attach-sf-policy"
-#   roles      = [ aws_iam_role.iam_for_lambda.name ]
-#   policy_arn = "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
-# }
-
