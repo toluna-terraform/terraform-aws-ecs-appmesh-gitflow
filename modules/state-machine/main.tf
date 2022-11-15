@@ -44,6 +44,7 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
           "TaskToken.$": "$$.Task.Token"
         }
       },
+      "TimeoutSeconds": 900,
       "Next": "validate_test_results"
     },
     "validate_test_results": {

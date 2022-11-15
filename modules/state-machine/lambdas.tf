@@ -51,9 +51,11 @@ resource "aws_lambda_function" "cleanup" {
   runtime = "python3.9"
 
   function_name = "${var.app_name}-${var.env_name}-cleanup"
-  description = "cleanup services on applicatin nextColor service "
+  description = "cleanup services on application nextColor service "
+
   filename = "${path.module}/lambdas/cleanup.zip"
   source_code_hash = filebase64sha256("${path.module}/lambdas/cleanup.zip")
+  layers = [ aws_lambda_layer_version.ecs_appmesh_pipeline_layer.arn ]
 
   role = "${aws_iam_role.iam_for_lambda.arn}"
   handler = "cleanup.lambda_handler"
