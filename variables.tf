@@ -106,10 +106,13 @@ variable "region" {
   default = "us-east-1"
 }
 
-    variable "namespace" {
+variable "namespace" {
     type = string
-    }
+}
 
+variable "app_health_check_url" {
+    type = string
+}
 # variable "test_report_group" {
 #   type = string
 # }

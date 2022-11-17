@@ -36,7 +36,7 @@ resource "aws_lambda_function" "deploy_updated_version" {
     }
   }
 
-  timeout = 180
+  timeout = 300
 }
 
 # ---- cleanup in case if tests fails in new env

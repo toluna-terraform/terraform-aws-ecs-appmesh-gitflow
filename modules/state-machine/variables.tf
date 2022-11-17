@@ -48,3 +48,7 @@ variable "region" {
 variable "namespace" {
   type = string
 }
+
+variable "app_health_check_url" {
+    type = string
+}

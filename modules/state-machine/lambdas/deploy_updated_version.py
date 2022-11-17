@@ -50,7 +50,7 @@ def lambda_handler(event, context):
   )
 
   # allowing time to stabilizing ECS tasks booted above
-  time.sleep(120)
+  time.sleep(180)
 
   # --- change Route in test VR to next_color so that, 
   # integ tests and stress tests will happen in the test route

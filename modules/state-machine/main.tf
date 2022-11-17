@@ -38,13 +38,13 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
           "StressResults": false,
           "environment" : "${var.env_name}", 
           "trigger": "${local.app_name}-${local.env_name}-state-machine",
-          "lb_name": "${local.appmesh_name}.${local.appmesh_profile}.toluna-internal.com",
+          "lb_name": "${var.app_health_check_url}",
           "integration_report_group": "arn:aws:codebuild:us-east-1:${local.aws_account_id}:report-group/${local.app_name}-${local.env_name}-IntegrationTestReport",
           "stress_report_group": "arn:aws:codebuild:us-east-1:${local.aws_account_id}:report-group/${local.app_name}-${local.env_name}-StressTestReport",
           "TaskToken.$": "$$.Task.Token"
         }
       },
-      "TimeoutSeconds": 900,
+      "TimeoutSeconds": 600,
       "Next": "validate_test_results"
     },
     "validate_test_results": {
