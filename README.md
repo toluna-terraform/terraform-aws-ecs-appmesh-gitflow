@@ -8,16 +8,13 @@ This modules for for gitflow of AWS ECS style applications using App Mesh
 
 This module helps implement gitflow in ECS style applications that use App Mesh. 
 
-* Version
 
-
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ### How do I get set up? ###
 
 * Summary of set up
 
-This module is included as part of applications. Usually will be called from terraform/app/pipeline.tf files, with parameters as follows: 
+This module should be included as part of applications. Usually will be called from terraform/app/pipeline.tf files, with parameters as follows: 
 
 
 **General Parameters**
@@ -30,6 +27,16 @@ This module is included as part of applications. Usually will be called from ter
 
 `env_type`
 
+`pipeline_branch`
+
+`appmesh_owner`
+
+`appmesh_name`
+
+`appmesh_profile`
+
+`namespace`
+
 `source_repository`
 
 `trigger_branch`
@@ -40,20 +47,9 @@ This module is included as part of applications. Usually will be called from ter
 
 `enable_jira_automation`
 
-Boolean value (default: false), indicating if Jira automation to be enabled, to change the status of tickets after release is completed from AWS codepipeline.
-
-
-This requires AWS SSM parameter `/app/jira_release_hook` to be setup along with required Jira automation. From the module,  the Jira release hook URL will be invoked and there by Jira automation will be executed to change the status of tickets as per the Jira automation configuration. 
-
-`appmesh_name`
-
-`appmesh_owner`
 
 **ECS related parameters**
 
-`ecs_service_name`
-
-`ecs_cluster_name`
 
 `ecr_registry_id`
 
@@ -65,32 +61,28 @@ This requires AWS SSM parameter `/app/jira_release_hook` to be setup along with 
 
 **Testing Parameters**
 
-`test_report_group`
-
-`coverage_report_group`
-
 `run_integration_tests`
 
 `ecs_iam_roles_arns`
 
 * Dependencies
 
-* Database configuration
+For this module to provide required functionality to application that includes it, it should have teh followgn modules included: 
 
-* How to run tests
-* Deployment instructions
 
-### Contribution guidelines ###
+* ECS with appmesh
+* Test Framework
+* Controller
+with compatible versions
 
-* Writing tests
-* Code review
-* Other guidelines
+***Consul Parameters***
+ * infra/mesh-orc/current_color
 
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
-
+***SSM Parameter Configuration***
+  * Parameters required for accessing CONSUL: /infra/<app_name>/consul_proj_id and /infra/<app_name>/consul_token
+  * /infra/<app_name>/hook_execution_id
+  * /infra/<app_name>/deployment_id
+  * /infra/<app_name>/merge_waiter_seconds - allows configuring wait time for merge to happen
 
 
 

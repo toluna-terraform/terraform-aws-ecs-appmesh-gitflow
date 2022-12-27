@@ -1,35 +1,49 @@
 import boto3
 import json
 import os
+import time
 import consul
 
 def lambda_handler(event, context):
 
   appName = os.getenv('APP_NAME')
   envName = os.getenv('ENV_NAME')
+  envType = os.getenv('ENV_TYPE')
   cluster_name = "{app}-{env}".format( app= appName, env = envName )
 
-  # getting current_color
-  # ssm_client = boto3.client("ssm", region_name="us-east-1")
-  # ssm_resonse = ssm_client.get_parameter    (
-  #   Name = '/infra/{app}-{env}/current_color'.format(app = appName, env = envName)
-  # )
-  # currentColor = ssm_resonse["Parameter"]["Value"]
-  
-  c = consul.Consul(
-        host = "consul-cluster-test.consul.06a3e2e2-8cc2-4181-a81b-eb88cb8dfe0f.aws.hashicorp.cloud", 
+  ssmClient = boto3.client('ssm')
+
+  consulResp = ssmClient.get_parameter(
+    Name = "/infra/{app}-{envtype}/consul_project_id".format(app = appName, envtype = envType), 
+    WithDecryption=True
+  )
+  consulProjId = consulResp["Parameter"]["Value"]
+
+  consulResp = ssmClient.get_parameter(
+    Name = "/infra/{app}-{envtype}/consul_http_token".format(app = appName, envtype = envType),
+    WithDecryption=True
+  )
+  consulHttpToken = consulResp["Parameter"]["Value"]
+
+  connection = consul.Consul(
+        host = "consul-cluster-test.consul.{proj}.aws.hashicorp.cloud".format(proj = consulProjId) , 
         port = 80,
-        token = "96e58b76-3bf6-c588-9a8a-347f80a751d5",
+        token = consulHttpToken,
         scheme = "http"
         )
-  current_color_json = c.kv.get( "infra/chef-srinivas/current_color")
-  currentColor = current_color_json[1]["Value"].decode('utf-8')
 
+  session = connection.session.create( behavior = "release", ttl=20 )
+  
+  # previous color is already changed in SF. Hence, keep current_color tasks
+  current_color_tuple = connection.kv.get( "infra/{app}-{env}/current_color".format(app = appName, env = envName))
+  current_color = current_color_tuple[1]["Value"].decode()
 
-  if currentColor == "green":
-    nextColor = "blue"
+  if current_color == "green":
+    previous_color = "blue"
   else:
-    nextColor = "green"
+    previous_color = "green"
+
+  print ("previous_color = ", previous_color)
 
   # --- switch traffic at appmesh route
   client = boto3.client("appmesh", region_name="us-east-1")
@@ -43,12 +57,12 @@ def lambda_handler(event, context):
             'action': {
                 'weightedTargets': [
                     {
-                        'virtualNode': 'vn-{app}-{env}-{color}'.format(app = appName, env = envName, color = currentColor) ,
-                        'weight': 0
+                        'virtualNode': 'vn-{app}-{env}-{color}'.format(app = appName, env = envName, color = current_color) ,
+                        'weight': 100
                     },
                     {
-                        'virtualNode': 'vn-{app}-{env}-{color}'.format(app = appName, env = envName, color = nextColor),
-                        'weight': 100
+                        'virtualNode': 'vn-{app}-{env}-{color}'.format(app = appName, env = envName, color = previous_color),
+                        'weight': 0
                     }
                 ]
             },
@@ -59,28 +73,15 @@ def lambda_handler(event, context):
     }
   )
 
-  # --- shutdown current previous color tasks after traffic switch
+  # shutdown previous_color tasks
   client = boto3.client("ecs", region_name="us-east-1")
   
   print ("cluster_name = " + cluster_name)
-
-  # shutdown curent_color tasks
   response = client.update_service(
     cluster = cluster_name,
-    service = "{app}-{color}".format(app = appName, color = currentColor) ,
+    service = "{app}-{color}".format(app = appName, color = previous_color) ,
     desiredCount = 0
   )
   print( json.dumps(response, indent=4, default=str))
 
-  # update current_color  with next_color
-
-  # ssm_resonse = ssm_client.put_parameter(
-  #   Name = '/infra/{app}-{env}/current_color'.format(app = appName, env = envName),
-  #   Value = nextColor,
-  #   Overwrite = True
-  # )
-  
-  c.kv.put( 'infra/chef-srinivas/current_color', nextColor )
-
-  
-  
+  connection.session.destroy(session)

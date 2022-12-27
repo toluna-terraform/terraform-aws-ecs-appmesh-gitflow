@@ -19,6 +19,11 @@ variable "run_integration_tests" {
     default = false
 }
 
+variable "run_stress_tests" {
+    type = bool
+    default = false
+}
+
 variable "ecr_repo_url" {
     type = string 
 }
@@ -74,14 +79,6 @@ variable "termination_wait_time_in_minutes" {
   default = 120
 }
 
-# variable "test_report_group" {
-#   type = string
-# }
-
-# variable "coverage_report_group" {
-#   type = string
-# }
-
 variable "enable_jira_automation" {
   type = bool
   description = "flag to indicate if Jira automation is enabled"
@@ -95,3 +92,31 @@ variable "appmesh_owner" {
 variable "appmesh_name" {
     type = string
 }
+
+variable "pipeline_branch" {
+    type = string
+}
+
+variable "appmesh_profile" {
+  type = string
+}
+
+variable "region" {
+  type = string
+  default = "us-east-1"
+}
+
+variable "namespace" {
+    type = string
+}
+
+variable "app_health_check_url" {
+    type = string
+}
+# variable "test_report_group" {
+#   type = string
+# }
+
+# variable "coverage_report_group" {
+#   type = string
+# }

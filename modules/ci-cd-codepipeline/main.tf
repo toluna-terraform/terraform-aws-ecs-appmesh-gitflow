@@ -1,5 +1,8 @@
 locals {
-  codepipeline_name     = "codepipeline-${var.app_name}-${var.env_name}"
+  app_name = var.app_name
+  env_name = var.env_name
+  codepipeline_name     = "codepipeline-${local.app_name}-${local.env_name}"
+  aws_account_id = data.aws_caller_identity.current.account_id
 }
 
 resource "aws_codepipeline" "codepipeline" {
@@ -76,7 +79,7 @@ resource "aws_codepipeline" "codepipeline" {
 
 
   stage {
-    name = "${var.app_name}-${var.env_name}-StateMachine"
+    name = "sf-deploy-test"
     dynamic "action" {
       for_each = var.code_deploy_applications
       content {
@@ -88,17 +91,10 @@ resource "aws_codepipeline" "codepipeline" {
 
         configuration = {
           # StateMachineArn = resource.aws_sfn_state_machine.sfn_state_machine.arn
-          StateMachineArn = "arn:aws:states:us-east-1:603106382807:stateMachine:chef-srinivas-state-machine"
+          StateMachineArn = "arn:aws:states:us-east-1:${local.aws_account_id}:stateMachine:${local.app_name}-${local.env_name}-state-machine"
           InputType = "Literal"
-          Input = "{ \"input\": { \"name\": \"Srinivas\" },  \"output\": {  \"health_state\": \"healthy\"  }, \"results\": {  \"result1\": \"200 - ok\" }  }"
+          Input = "{ \"input\": { \"name\": \"${local.env_name}\" },  \"output\": {  \"health_state\": \"healthy\"  }, \"results\": {  \"result1\": \"200 - ok\" }  }"
 
-          # ApplicationName = action.value
-          # DeploymentGroupName = "ecs-deploy-group-${var.env_name}"
-          # TaskDefinitionTemplateArtifact = var.pipeline_type == "dev" ? "dev_output" : "cd_output"
-          # TaskDefinitionTemplatePath = "taskdef.json"
-          # AppSpecTemplateArtifact = var.pipeline_type == "dev" ? "dev_output" : "cd_output"
-          # Image1ArtifactName = var.pipeline_type == "dev" ? "dev_output" : "cd_output"
-          # Image1ContainerName = "IMAGE1_NAME"
         }
       }
     }
@@ -127,21 +123,5 @@ resource "aws_codepipeline" "codepipeline" {
 
 }
 
-resource "aws_iam_role" "codepipeline_role" {
-  name               = "role-${local.codepipeline_name}"
-  assume_role_policy = data.aws_iam_policy_document.codepipeline_assume_role_policy.json
-}
 
-# Attach policy to execute StateMachine to code pipeline role
-resource "aws_iam_policy_attachment" "attach-statemachine-policy" {
-  name       = "attach-statemachine-policy"
-  roles      = [ aws_iam_role.codepipeline_role.name ]
-  policy_arn = "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
-}
-
-resource "aws_iam_role_policy" "codepipeline_policy" {
-  name   = "policy-${local.codepipeline_name}"
-  role   = aws_iam_role.codepipeline_role.id
-  policy = data.aws_iam_policy_document.codepipeline_role_policy.json
-}
 

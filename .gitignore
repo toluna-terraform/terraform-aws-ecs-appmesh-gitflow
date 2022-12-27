@@ -1,2 +1,6 @@
-**/logs
-**/zip
+*.log
+*.zip
+*.hcl
+*.Identifier
+
+
