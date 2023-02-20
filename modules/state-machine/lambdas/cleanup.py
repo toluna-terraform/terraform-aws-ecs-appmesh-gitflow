@@ -11,11 +11,8 @@ def lambda_handler(event, context):
   cluster_name = '{app}-{env}'.format(app = appName, env = envName)
 
   ssmClient = boto3.client('ssm')
-  consulResp = ssmClient.get_parameter(
-    Name = "/infra/{app}-{envtype}/consul_project_id".format(app = appName, envtype = envType), 
-    WithDecryption=True
-  )
-  consulProjId = consulResp["Parameter"]["Value"]
+  consulResp = ssmClient.get_parameter(     Name = "/infra/consul_url"   )
+  consulUrl = consulResp["Parameter"]["Value"]
 
   consulResp = ssmClient.get_parameter(
     Name = "/infra/{app}-{envtype}/consul_http_token".format(app = appName, envtype = envType),
@@ -24,10 +21,10 @@ def lambda_handler(event, context):
   consulHttpToken = consulResp["Parameter"]["Value"]
 
   connection = consul.Consul(
-      host = "consul-cluster-test.consul.{proj}.aws.hashicorp.cloud".format(proj = consulProjId) , 
-      port = 80,
+      host = consulUrl , 
+      port = 443,
       token = consulHttpToken,
-      scheme = "http"
+      scheme = "https"
   )
 
   session = connection.session.create( behavior = "release", ttl=20 )
@@ -46,7 +43,7 @@ def lambda_handler(event, context):
   # shutdown next_color tasks
   response = client.update_service(
     cluster = cluster_name,
-    service = "{app}-{color}".format(app = appName, color = nextColor) ,
+    service = "{app}-{env}-{color}".format(app = appName, env = envName, color = nextColor) ,
     desiredCount = 0
   )
   print( json.dumps(response, indent=4, default=str))

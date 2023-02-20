@@ -12,6 +12,7 @@ locals {
 }
 
 # ---- create Step Function Orchestration flow
+# ---- IntegResults and StressResults false means they are yet to be executed as per the callee code
 resource "aws_sfn_state_machine" "sfn_state_machine" {
   name     = "${var.app_name}-${var.env_name}-state-machine"
   role_arn = aws_iam_role.iam_for_sfn.arn

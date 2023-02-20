@@ -13,18 +13,18 @@ def lambda_handler(event, context):
   # getting consul proj id, and token from SSM
   ssm_client = boto3.client("ssm", region_name="us-east-1")
 
-  ssm_resonse = ssm_client.get_parameter ( Name = "/infra/{app}-{envtype}/consul_project_id".format(app = appName, envtype = envType), WithDecryption=True  )
-  consulProjId = ssm_resonse["Parameter"]["Value"]
+  ssm_resonse = ssm_client.get_parameter ( Name = "/infra/consul_url"  )
+  consulUrl = ssm_resonse["Parameter"]["Value"]
 
   ssm_resonse = ssm_client.get_parameter ( Name = "/infra/{app}-{envtype}/consul_http_token".format(app = appName, envtype = envType), WithDecryption=True  )
   consulToken = ssm_resonse["Parameter"]["Value"]
 
   # getting current_color
   c = consul.Consul(
-        host = "consul-cluster-test.consul.{projId}.aws.hashicorp.cloud".format(projId = consulProjId) , 
-        port = 80,
+        host = consulUrl , 
+        port = 443,
         token = consulToken,
-        scheme = "http"
+        scheme = "https"
         )
   current_color_json = c.kv.get( "infra/{app}-{env}/current_color".format(app = appName, env = envName))
   currentColor = current_color_json[1]["Value"].decode('utf-8')
@@ -43,8 +43,7 @@ def lambda_handler(event, context):
   # start next_color tasks
   response = client.update_service(
     cluster = cluster_name,
-    service = "{app}-{color}".format(app = appName, color = nextColor) ,
-    desiredCount = 3,
+    service = "{app}-{env}-{color}".format(app = appName, env = envName, color = nextColor) ,
     # updating taskdef
     taskDefinition = "{app}-{env}-{color}".format(app = appName, env = envName, color = nextColor) 
   )

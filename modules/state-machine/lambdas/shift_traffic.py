@@ -26,10 +26,10 @@ def lambda_handler(event, context):
   consulHttpToken = consulResp["Parameter"]["Value"]
 
   connection = consul.Consul(
-        host = "consul-cluster-test.consul.{proj}.aws.hashicorp.cloud".format(proj = consulProjId) , 
-        port = 80,
+        host = "consul-cluster-prod.consul.{proj}.aws.hashicorp.cloud".format(proj = consulProjId) , 
+        port = 443,
         token = consulHttpToken,
-        scheme = "http"
+        scheme = "https"
         )
 
   session = connection.session.create( behavior = "release", ttl=20 )
