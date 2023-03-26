@@ -80,7 +80,7 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
         "FunctionName": "${var.app_name}-${var.env_type}-merge-waiter",
         "Payload": {
           "DeploymentType" : "AppMesh" ,
-          "DeploymentId" : "Dummy_DeploymentId",
+          "DeploymentId" : "d-5D9FMFGVM",
           "LifecycleEventHookExecutionId" : "Dummy_LifecycleEventHookExecutionId", 
           "environment" : "${var.env_name}", 
           "taskToken.$": "$$.Task.Token"

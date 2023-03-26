@@ -11,13 +11,8 @@ exports.handler = async function () {
   let current_color;
   let next_color;
 
-  // get consul proj Id and token from SSM parameters
-  var consulProjIdSsm = {     
-    Name: `/infra/${appName}-${envType}/consul_project_id`,
-    WithDecryption: false
-  };
-  const  consul_project_id = await ssm.getParameter(consulProjIdSsm).promise();
-  console.log("consul_project_id = " + String(consul_project_id) );
+  ssm_resonse = ssm_client.get_parameter ( Name = "/infra/consul_url"  )
+  consulUrl = ssm_resonse["Parameter"]["Value"]
 
   var consulHttpTokenSsm = {
     Name: `/infra/${appName}-${envType}/consul_http_token`, 
@@ -28,8 +23,7 @@ exports.handler = async function () {
   console.log("consul_token = " + consul_token);
 
   var consul = new Consul({
-    host: `consul-cluster-test.consul.${consulProjId}.aws.hashicorp.cloud` ,
-    // host: 'consul-cluster-test.consul.06a3e2e2-8cc2-4181-a81b-eb88cb8dfe0f.aws.hashicorp.cloud' ,
+    host: consulUrl ,
     port: 443 ,
     token: '96e58b76-3bf6-c588-9a8a-347f80a751d5'
   });

@@ -44,6 +44,8 @@ def lambda_handler(event, context):
   response = client.update_service(
     cluster = cluster_name,
     service = "{app}-{env}-{color}".format(app = appName, env = envName, color = nextColor) ,
+    # desiredCount should be same as in consul app-env.json confiuration for workspace
+    desiredCount = 1,
     # updating taskdef
     taskDefinition = "{app}-{env}-{color}".format(app = appName, env = envName, color = nextColor) 
   )
